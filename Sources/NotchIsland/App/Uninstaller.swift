@@ -29,12 +29,10 @@ enum Uninstaller {
         let domain = Bundle.main.bundleIdentifier ?? ProcessInfo.processInfo.processName
         UserDefaults.standard.removePersistentDomain(forName: domain)
 
-        let paths = [
-            "Application Support/NotchIsland", "Caches/\(id)", "HTTPStorages/\(id)",
-            "Saved Application State/\(id).savedState", "Logs/NotchIsland",
-        ]
-        for path in paths { try? fm.removeItem(at: library.appendingPathComponent(path)) }
-        for name in ["notchisland-nc"] { try? fm.removeItem(at: fm.temporaryDirectory.appendingPathComponent(name)) }
+        for path in ["Application Support/NotchIsland", "Caches/\(id)", "HTTPStorages/\(id)"] {
+            try? fm.removeItem(at: library.appendingPathComponent(path))
+        }
+        try? fm.removeItem(at: fm.temporaryDirectory.appendingPathComponent("notchisland-nc"))
 
         // Xoá quyền đã cấp cho app khỏi cơ sở dữ liệu TCC.
         let tcc = Process()
