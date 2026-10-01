@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:NotchIsland}",
+            "name": "Debug NotchIsland",
+            "target": "NotchIsland",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug NotchIsland"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:NotchIsland}",
+            "name": "Release NotchIsland",
+            "target": "NotchIsland",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release NotchIsland"
+        }
+    ]
+}
