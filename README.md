@@ -1,7 +1,6 @@
 # NotchIsland
 
 Dynamic Island cho macOS – mã nguồn mở, viết bằng Swift + SwiftUI, không phụ thuộc thư viện ngoài.
-Một bản thay thế tự xây cho Alcove.
 
 ## Tính năng (v0.10)
 
