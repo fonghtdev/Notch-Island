@@ -3,7 +3,7 @@
 # NotchIsland
 
 **Dynamic Island miễn phí cho notch MacBook.**
-Nhạc, cuộc gọi, hẹn giờ, âm lượng, pin, tai nghe, camera – gói gọn trong một viên thuốc ngay dưới camera.
+Nhạc, cuộc gọi, hẹn giờ, âm lượng, pin, tai nghe, camera – gói gọn trong một Island.
 
 [![Release](https://img.shields.io/github/v/release/fonghtdev/Notch-Island?label=release&color=7c4dff)](https://github.com/fonghtdev/Notch-Island/releases/latest)
 ![macOS](https://img.shields.io/badge/macOS-13%2B-black?logo=apple)
@@ -25,11 +25,11 @@ Nhạc, cuộc gọi, hẹn giờ, âm lượng, pin, tai nghe, camera – gói 
 | 🔊 **HUD** | Thay HUD âm lượng, độ sáng, đèn bàn phím của macOS; tuỳ chỉnh kiểu thanh / vạch / vòng, màu và bo góc. |
 | 🔋 **Sạc & tai nghe** | Thẻ cắm / rút sạc, AirPods / Beats với biểu tượng chuẩn Apple và pin từng tai. |
 | ⏱ **Hoạt động** | Hẹn giờ, bấm giờ (cả của app Đồng hồ), ghi âm có nút tạm dừng / dừng, nhận biết app đang dùng micro / camera. |
-| 📷 **Gương camera** | Xem trước camera ngay trên đảo, lật gương như Photo Booth. |
+| 📷 **Gương camera** | Xem trước camera ngay trên island, lật gương như Photo Booth. |
 | 🔒 **Màn hình khoá** | Thẻ nhạc, cuộc gọi và (tuỳ chọn) thông báo ngay trên màn hình khoá *(thử nghiệm)*. |
-| 🎨 **Nền đảo** | Đen liền khối với notch, kính mờ, hoặc **Liquid Glass** (macOS 26). |
+| 🎨 **Nền island** | Đen liền khối với notch, kính mờ, hoặc **Liquid Glass** (macOS 26). |
 
-Ngoài ra: tự nhận diện notch thật (máy không notch sẽ tạo notch giả), click xuyên qua khi chuột không ở trên đảo, có mặt ở mọi Space và khi app khác full-screen, tự cập nhật, báo lỗi ngay trong app, gỡ cài đặt sạch bằng một nút.
+Ngoài ra: tự nhận diện notch thật (máy không notch sẽ tạo notch giả), click xuyên qua khi chuột không ở trên island, có mặt ở mọi Space và khi app khác full-screen, tự cập nhật, báo lỗi ngay trong app, gỡ cài đặt sạch bằng một nút.
 
 ## Cài đặt
 
@@ -45,9 +45,9 @@ Các bản cập nhật sau do app tự tải (menu bar → *Kiểm tra cập nh
 
 ## Sử dụng
 
-- **Mở đảo:** rê chuột (hoặc bấm, tuỳ chọn) vào notch. Khi có nhạc, nút **☰** ở góc trên trái mở màn hình chính: pin, hẹn giờ, bấm giờ, camera.
+- **Mở island:** rê chuột (hoặc bấm, tuỳ chọn) vào notch. Khi có nhạc, nút **☰** ở góc trên trái mở màn hình chính: pin, hẹn giờ, bấm giờ, camera.
 - **Menu bar:** hẹn giờ, bấm giờ, Cài đặt (⌘,), hỗ trợ. Giữ **Option** khi mở menu để hiện mục *Nâng cao* (demo, chẩn đoán nhạc / đồng hồ / cuộc gọi).
-- **Cài đặt:** bật tắt từng tính năng, giao diện HUD, nền đảo, màn hình hiển thị, cập nhật, báo lỗi, gỡ cài đặt.
+- **Cài đặt:** bật tắt từng tính năng, giao diện HUD, nền island, màn hình hiển thị, cập nhật, báo lỗi, gỡ cài đặt.
 
 ### Quyền cần cấp
 
@@ -55,7 +55,7 @@ Các bản cập nhật sau do app tự tải (menu bar → *Kiểm tra cập nh
 |---|---|---|
 | **Trợ năng** | Thay HUD âm lượng / độ sáng; đọc người gọi và bấm nút trong app gọi; điều khiển ghi âm | Khuyến nghị |
 | **Automation** | Chuyển tới đúng tab trình duyệt, điều khiển Music / Spotify | Tuỳ chọn |
-| **Camera** | Gương camera trên đảo | Tuỳ chọn |
+| **Camera** | Gương camera trên island | Tuỳ chọn |
 | **Toàn bộ ổ đĩa** | Đọc thông báo để hiện trên màn hình khoá | Tuỳ chọn, mặc định tắt |
 
 Bản ký ad-hoc có thể bị macOS “quên” quyền Trợ năng sau khi cập nhật; app tự nhắc cấp lại một lần.
@@ -99,7 +99,7 @@ Sources/NotchIsland/
 <details>
 <summary><b>Quyết định kỹ thuật</b></summary>
 
-- **Panel cố định kích thước tối đa**, chỉ hình đảo bên trong đổi size → animation mượt, không resize `NSWindow` mỗi frame. `ignoresMouseEvents` bật tắt theo vị trí chuột để click xuyên qua.
+- **Panel cố định kích thước tối đa**, chỉ hình island bên trong đổi size → animation mượt, không resize `NSWindow` mỗi frame. `ignoresMouseEvents` bật tắt theo vị trí chuột để click xuyên qua.
 - **Now Playing theo provider.** `MediaRemote` là API riêng tư, bị khoá với app bên thứ ba từ macOS 15.4. Nguồn chính là [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter) chạy qua `/usr/bin/perl`; thiếu thì tự lùi về distributed notifications của Music / Spotify.
 - **Cuộc gọi.** Micro đang mở được đọc từ CoreAudio process objects; tiến trình phụ (vd. `ZaloCall`, helper của trình duyệt) quy về app chính. Người gọi, đồng hồ và nút điều khiển đọc qua Trợ năng; cuộc gọi iPhone / FaceTime đọc từ `TelephonyUtilities` (riêng tư, gọi qua ObjC runtime có kiểm tra `responds(to:)`).
 - **HUD.** Âm lượng qua CoreAudio (công khai); độ sáng và đèn bàn phím qua `DisplayServices` / `CoreBrightness` nạp bằng `dlopen`. Phím bắt bằng `CGEventTap`.
@@ -133,7 +133,7 @@ Không thu thập dữ liệu, không có máy chủ riêng. Các kết nối ra
 - Nhiều tính năng dựa trên API riêng tư của Apple (cuộc gọi iPhone, đồng hồ hệ thống, độ sáng, màn hình khoá, đọc thông báo) và có thể thay đổi giữa các bản macOS. Nếu một phần không chạy, các phần còn lại vẫn hoạt động; mục *Nâng cao → Chẩn đoán…* giúp tìm nguyên nhân.
 - Nút điều khiển trong app gọi phụ thuộc việc app đó lộ nút ra Trợ năng; Zalo, Messenger và các app khác có thể cần chỉnh theo từng phiên bản.
 - Cuộc gọi trong trình duyệt chỉ có nút khi trang lộ được nút ra hệ thống.
-- Đảo chỉ hiện trên một màn hình (chọn trong Cài đặt). HUD độ sáng chỉ dành cho màn hình tích hợp.
+- Island chỉ hiện trên một màn hình (chọn trong Cài đặt). HUD độ sáng chỉ dành cho màn hình tích hợp.
 
 ## Lộ trình
 
