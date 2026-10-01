@@ -154,6 +154,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(providerItem)
         menu.addItem(makeItem("Chẩn đoán nhạc…", #selector(diagnoseMusic)))
         menu.addItem(makeItem("Chẩn đoán Đồng hồ…", #selector(diagnoseClock)))
+        menu.addItem(makeItem("Chẩn đoán cuộc gọi…", #selector(diagnoseCalls)))
         return menu
     }
 
@@ -263,6 +264,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             self?.showReport(
                 title: "Chẩn đoán Đồng hồ", report: report,
                 hint: "Đặt một hẹn giờ / bấm giờ trong app Đồng hồ rồi bấm lại mục này, sau đó gửi nội dung này cho người hỗ trợ."
+            )
+        }
+    }
+
+    @objc private func diagnoseCalls() {
+        viewModel?.diagnoseCalls { [weak self] report in
+            self?.showReport(
+                title: "Chẩn đoán cuộc gọi", report: report,
+                hint: "Đang trong một cuộc gọi (Zalo, Messenger, Discord…) thì bấm mục này, rồi gửi nội dung cho người hỗ trợ."
             )
         }
     }

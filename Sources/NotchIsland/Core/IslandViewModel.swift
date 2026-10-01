@@ -234,6 +234,21 @@ final class IslandViewModel: ObservableObject {
         activityCenter.diagnoseClock(completion: completion)
     }
 
+    func diagnoseCalls(completion: @escaping (String) -> Void) {
+        activityCenter.diagnoseCalls(completion: completion)
+    }
+
+    /// Tắt mic / tắt tiếng / kết thúc cuộc gọi bằng cách bấm nút của chính app gọi (Trợ năng). Quét cây có thể chậm → luồng nền.
+    func performCall(_ action: CallControl.Action, _ activity: LiveActivity) {
+        guard let bundle = activity.bundleIdentifier else { return }
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let pressed = CallControl.perform(action, bundleID: bundle)
+            DispatchQueue.main.async {
+                if pressed { self?.activityCenter.callActionDone(action, activityID: activity.id) } else { NSSound.beep() }
+            }
+        }
+    }
+
     /// Tạm dừng / tiếp tục bản ghi của app khác bằng cách bấm nút của app đó (cần quyền Trợ năng).
     func toggleRecordingPause(_ activity: LiveActivity) {
         guard let bundle = activity.bundleIdentifier else { return }

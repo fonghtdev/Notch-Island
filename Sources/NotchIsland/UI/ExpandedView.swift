@@ -229,6 +229,7 @@ struct ControlButton: View {
     let symbol: String
     let size: CGFloat
     var diameter: CGFloat = 30
+    var tint: Color? = nil
     let action: () -> Void
     @State private var isHovering = false
 
@@ -236,6 +237,7 @@ struct ControlButton: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: size, weight: .bold))
+                .foregroundStyle(tint ?? .white)
                 .symbolSwap()
                 .frame(width: diameter, height: diameter)
                 .background(Circle().fill(.white.opacity(isHovering ? 0.16 : 0)))

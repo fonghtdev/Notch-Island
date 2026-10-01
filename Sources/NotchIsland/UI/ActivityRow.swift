@@ -42,7 +42,7 @@ struct ActivityRow: View {
 
             // Đồng hồ + nút gom vào một viên thuốc: gọn, dễ nhìn, không bị kéo giãn ra hai mép.
             HStack(spacing: 2) {
-                TimelineView(.periodic(from: .now, by: 1)) { context in
+                TimelineView(.periodic(from: activity.tickAnchor, by: 1)) { context in
                     if let text = activity.clockText(at: context.date) {
                         Text(text)
                             .font(.system(size: 14, weight: .semibold, design: .rounded))
@@ -79,6 +79,16 @@ struct ActivityRow: View {
         case .recording:
             ControlButton(symbol: pauseSymbol, size: 10, diameter: 26) { viewModel.toggleRecordingPause(activity) }
             ControlButton(symbol: "stop.fill", size: 10, diameter: 26) { viewModel.stopRecording(activity) }
+        case .call:
+            let state = activity.call
+            ControlButton(symbol: state?.muted == true ? "mic.slash.fill" : "mic.fill", size: 10, diameter: 26,
+                          tint: state?.muted == true ? .orange : nil) { viewModel.performCall(.mute, activity) }
+            // Chỉ app có nút "tắt tiếng" (vd. Discord) mới hiện nút này.
+            if let deafened = state?.deafened {
+                ControlButton(symbol: deafened ? "speaker.slash.fill" : "speaker.wave.2.fill", size: 10, diameter: 26,
+                              tint: deafened ? .orange : nil) { viewModel.performCall(.deafen, activity) }
+            }
+            ControlButton(symbol: "phone.down.fill", size: 10, diameter: 26, tint: .red) { viewModel.performCall(.end, activity) }
         case .none:
             EmptyView()
         }
@@ -90,7 +100,7 @@ struct ActivityWing: View {
     let activity: LiveActivity
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { context in
+        TimelineView(.periodic(from: activity.tickAnchor, by: 1)) { context in
             if let text = activity.clockText(at: context.date) {
                 Text(text)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))

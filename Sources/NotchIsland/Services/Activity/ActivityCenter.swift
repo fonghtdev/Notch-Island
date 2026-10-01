@@ -72,6 +72,11 @@ final class ActivityCenter {
     func resetStopwatch() { stopwatch.reset() }
 
     func diagnoseClock(completion: @escaping (String) -> Void) { clock.diagnose(completion: completion) }
+    func diagnoseCalls(completion: @escaping (String) -> Void) { capture.diagnose(completion: completion) }
+
+    func callActionDone(_ action: CallControl.Action, activityID: String) {
+        capture.didPerform(action, activityID: activityID)
+    }
 
     // MARK: - Ghi âm tạm dừng
 

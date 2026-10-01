@@ -32,7 +32,7 @@ enum RecorderControl {
 
     // MARK: - Tìm nút
 
-    private static func attribute(_ element: AXUIElement, _ name: String) -> AnyObject? {
+    static func attribute(_ element: AXUIElement, _ name: String) -> AnyObject? {
         var value: CFTypeRef?
         guard AXUIElementCopyAttributeValue(element, name as CFString, &value) == .success else { return nil }
         return value

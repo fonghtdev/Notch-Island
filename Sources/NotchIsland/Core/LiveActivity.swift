@@ -26,15 +26,26 @@ struct LiveActivity: Identifiable, Equatable {
     var pausedRemaining: TimeInterval?
     /// Bấm giờ / ghi âm đang tạm dừng: số giây đã trôi.
     var pausedElapsed: TimeInterval? = nil
+    /// Chỉ cuộc gọi của app (không phải trình duyệt): trạng thái mic / tắt tiếng. nil = chưa biết app có nút đó.
+    var call: CallState? = nil
+
+    struct CallState: Equatable {
+        var muted: Bool?
+        var deafened: Bool?
+    }
+
+    /// Mốc để đồng hồ hiển thị nhảy đúng lúc giây của hoạt động tròn (không trễ tới 1 giây so với app gốc).
+    var tickAnchor: Date { startedAt ?? endsAt ?? Date() }
 
     var isPaused: Bool { pausedRemaining != nil || pausedElapsed != nil }
 
     /// Nút điều khiển hiện trên hàng hoạt động.
-    enum Controls { case none, timer, stopwatch, recording }
+    enum Controls { case none, timer, stopwatch, recording, call }
     var controls: Controls {
         if id == "timer" { return .timer }
         if id == "stopwatch" { return .stopwatch }
         if kind == .recording { return .recording }
+        if kind == .call, call != nil { return .call }
         return .none
     }
 
