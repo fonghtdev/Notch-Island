@@ -14,10 +14,12 @@ enum IslandMetrics {
     static let expandedSize = CGSize(width: 440, height: 172)
     /// Thẻ mở rộng co giãn theo nội dung (xem `ExpandedLayout`).
     static let mediaOnlyHeight: CGFloat = 148
-    static let activityWidth: CGFloat = 348
+    static let activityWidth: CGFloat = 380
     static let activityRowHeight: CGFloat = 44
     static let activityRowSpacing: CGFloat = 8
-    static let idleSize = CGSize(width: 300, height: 88)
+    static let idleSize = CGSize(width: 340, height: 88)
+    /// Khung xem trước camera (cao tối đa 260 theo cửa sổ cố định).
+    static let cameraSize = CGSize(width: 440, height: 240)
 
     /// Cửa sổ trong suốt luôn giữ cố định kích thước tối đa (+ chỗ cho bóng đổ),
     /// chỉ phần hình đảo thay đổi → không phải resize NSWindow khi animate.

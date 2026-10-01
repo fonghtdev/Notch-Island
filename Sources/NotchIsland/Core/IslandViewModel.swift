@@ -91,10 +91,20 @@ final class IslandViewModel: ObservableObject {
         case media(withActivity: Bool)
         case activities(Int)
         case idle
+        /// Màn hình chính (pin, hẹn giờ, camera) mở từ nút ☰ khi đang có nhạc; cùng cỡ thẻ nhạc để đảo không co lại dưới con trỏ.
+        case home
+        /// Xem trước camera ngay trên đảo.
+        case camera
     }
+
+    /// Người dùng đã chọn màn hình chính / camera. Tự về mặc định khi đảo thu gọn.
+    @Published private(set) var homeShown = false
+    @Published private(set) var cameraShown = false
 
     var expandedLayout: ExpandedLayout {
         let count = visibleActivities.count
+        if cameraShown { return .camera }
+        if homeShown { return .home }
         if visibleNowPlaying != nil { return .media(withActivity: count > 0) }
         if count > 0 { return .activities(min(count, 2)) }
         return .idle
@@ -151,6 +161,10 @@ final class IslandViewModel: ObservableObject {
                     width: max(IslandMetrics.activityWidth, minWidth),
                     height: notch.height + 10 + body + 14
                 )
+            case .home:
+                return CGSize(width: max(IslandMetrics.expandedSize.width, minWidth), height: IslandMetrics.mediaOnlyHeight)
+            case .camera:
+                return CGSize(width: max(IslandMetrics.cameraSize.width, minWidth), height: IslandMetrics.cameraSize.height)
             case .idle:
                 return CGSize(
                     width: max(IslandMetrics.idleSize.width, minWidth),
@@ -175,6 +189,23 @@ final class IslandViewModel: ObservableObject {
         // Lời chào / lời cảm ơn: rê chuột hay bấm vào cũng không mở đảo, để thẻ không bị ngắt giữa chừng.
         if expanded, transient == .welcome || transient == .farewell { return }
         isExpanded = expanded
+        if !expanded { resetPages() }
+    }
+
+    func showHome() { homeShown = true }
+    func toggleCamera() {
+        cameraShown.toggle()
+        CaptureMonitor.ownCameraUntil = cameraShown ? .distantFuture : Date().addingTimeInterval(3)
+    }
+
+    /// Quay lại trang trước: camera → màn hình chính / nhạc.
+    func goBack() {
+        if cameraShown { toggleCamera() } else { homeShown = false }
+    }
+
+    private func resetPages() {
+        homeShown = false
+        if cameraShown { toggleCamera() }
     }
 
     /// Bấm vào đảo: chỉ có tác dụng khi đã tắt "rê chuột để mở".
@@ -241,6 +272,10 @@ final class IslandViewModel: ObservableObject {
     /// Tắt mic / tắt tiếng / kết thúc cuộc gọi bằng cách bấm nút của chính app gọi (Trợ năng). Quét cây có thể chậm → luồng nền.
     func performCall(_ action: CallControl.Action, _ activity: LiveActivity) {
         guard let bundle = activity.bundleIdentifier else { return }
+        if activity.id.hasPrefix(PhoneCallMonitor.idPrefix) {
+            if !activityCenter.performPhone(action, id: activity.id) { NSSound.beep() }
+            return
+        }
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let pressed = CallControl.perform(action, bundleID: bundle)
             DispatchQueue.main.async {

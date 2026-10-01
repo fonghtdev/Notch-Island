@@ -34,6 +34,8 @@ final class CaptureMonitor {
     private let probeQueue = DispatchQueue(label: "notchisland.callprobe", qos: .utility)
 
     private static let callGrace: TimeInterval = 5
+    /// Camera do chính NotchIsland mở (xem trước trên đảo) không phải "app khác đang dùng camera".
+    static var ownCameraUntil = Date.distantPast
 
     func seed(id: String, startedAt: Date) {
         seeds[id] = startedAt
@@ -162,7 +164,7 @@ final class CaptureMonitor {
         }
 
         // Camera bật nhưng không thấy app nào dùng micro (vd. Photo Booth, FaceTime video không mic…).
-        if cameraOn && list.isEmpty {
+        if cameraOn && list.isEmpty && now > Self.ownCameraUntil {
             let id = "camera"
             seen.insert(id)
             let started = firstSeen[id] ?? now
@@ -196,13 +198,14 @@ final class CaptureMonitor {
         switch Self.role(of: bundle, name: name) {
         case .call:
             let browser = Self.isBrowser(bundle)
-            scheduleProbe(bundle, deep: !browser)
             let snap = probes[bundle]
             // Cửa sổ cuộc gọi thường nằm ở tiến trình phụ (ZaloCall) → ưu tiên. Cửa sổ chính của Zalo mang tên tài khoản
             // của chính bạn ("Zalo - <tên bạn>") nên không dùng làm tên người gọi.
             var titles = snap?.helperTitles ?? []
             if !Self.untrustedMainTitle.contains(bundle) { titles += snap?.windowTitles ?? [] }
             let found = Self.identify(titles: titles, appName: name, browser: browser)
+            // Trình duyệt: chỉ quét sâu (cả trang web) khi đã thấy tab của một dịch vụ gọi, để không làm nặng trình duyệt.
+            scheduleProbe(bundle, deep: !browser || found.service != nil)
 
             var title = Self.service(in: bundle + " " + name) ?? name
             if browser, let service = found.service { title = service }
@@ -221,7 +224,9 @@ final class CaptureMonitor {
                 id: id, kind: .call, title: title, subtitle: subtitle,
                 symbolName: cameraOn ? "video.fill" : "phone.fill", tint: muted ? .orange : .green, bundleIdentifier: bundle,
                 startedAt: start, endsAt: nil, pausedRemaining: nil,
-                call: browser ? nil : LiveActivity.CallState(muted: muted, deafened: snap?.deafened)
+                // Trình duyệt chỉ có nút khi quét sâu thật sự thấy nút trong trang.
+                call: browser && snap?.muted == nil && snap?.canEnd != true ? nil
+                    : LiveActivity.CallState(muted: muted, deafened: snap?.deafened, camera: snap?.cameraOn)
             )
         case .recorder:
             return LiveActivity(
@@ -325,6 +330,7 @@ final class CaptureMonitor {
                 lines.append("  cửa sổ chính: \(snap.windowTitles.isEmpty ? "(không đọc được)" : snap.windowTitles.joined(separator: " | "))")
                 lines.append("  cửa sổ tiến trình phụ: \(snap.helperTitles.isEmpty ? "(không có)" : snap.helperTitles.joined(separator: " | "))")
                 lines.append("  nhãn thời gian: \(snap.durations.isEmpty ? "(không thấy)" : snap.durations.map { LiveActivity.format($0) }.joined(separator: ", "))")
+                lines.append("  camera: \(snap.cameraOn.map { $0 ? "đang bật" : "đang tắt" } ?? "không thấy nút")")
                 lines.append("  tắt mic: \(snap.muted.map { $0 ? "đang tắt" : "đang bật" } ?? "không thấy nút")"
                     + " · tắt tiếng: \(snap.deafened.map { $0 ? "đang tắt" : "đang bật" } ?? "không thấy nút")"
                     + " · kết thúc: \(snap.canEnd ? "có nút" : "không thấy nút")")

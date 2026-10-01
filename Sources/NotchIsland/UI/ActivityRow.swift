@@ -81,12 +81,20 @@ struct ActivityRow: View {
             ControlButton(symbol: "stop.fill", size: 10, diameter: 26) { viewModel.stopRecording(activity) }
         case .call:
             let state = activity.call
-            ControlButton(symbol: state?.muted == true ? "mic.slash.fill" : "mic.fill", size: 10, diameter: 26,
-                          tint: state?.muted == true ? .orange : nil) { viewModel.performCall(.mute, activity) }
-            // Chỉ app có nút "tắt tiếng" (vd. Discord) mới hiện nút này.
-            if let deafened = state?.deafened {
-                ControlButton(symbol: deafened ? "speaker.slash.fill" : "speaker.wave.2.fill", size: 10, diameter: 26,
-                              tint: deafened ? .orange : nil) { viewModel.performCall(.deafen, activity) }
+            if state?.ringing == true {
+                ControlButton(symbol: "phone.fill", size: 10, diameter: 26, tint: .green) { viewModel.performCall(.answer, activity) }
+            } else {
+                ControlButton(symbol: state?.muted == true ? "mic.slash.fill" : "mic.fill", size: 10, diameter: 26,
+                              tint: state?.muted == true ? .orange : nil) { viewModel.performCall(.mute, activity) }
+                // Chỉ app có nút "tắt tiếng" (vd. Discord) / nút camera (gọi video) mới hiện các nút này.
+                if let deafened = state?.deafened {
+                    ControlButton(symbol: deafened ? "speaker.slash.fill" : "speaker.wave.2.fill", size: 10, diameter: 26,
+                                  tint: deafened ? .orange : nil) { viewModel.performCall(.deafen, activity) }
+                }
+                if let camera = state?.camera {
+                    ControlButton(symbol: camera ? "video.fill" : "video.slash.fill", size: 10, diameter: 26,
+                                  tint: camera ? nil : .orange) { viewModel.performCall(.camera, activity) }
+                }
             }
             ControlButton(symbol: "phone.down.fill", size: 10, diameter: 26, tint: .red) { viewModel.performCall(.end, activity) }
         case .none:

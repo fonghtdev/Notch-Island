@@ -28,6 +28,8 @@
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSCameraUsageDescription</key>
+    <string>NotchIsland dùng camera để xem trước hình ảnh của bạn ngay trên đảo (như gương). Hình không được lưu hay gửi đi.</string>
     <key>NSAppleEventsUsageDescription</key>
     <string>NotchIsland cần quyền điều khiển Music/Spotify (phát, tạm dừng, chuyển bài) và trình duyệt (chuyển tới đúng tab đang phát khi bạn bấm vào đảo).</string>
 </dict>

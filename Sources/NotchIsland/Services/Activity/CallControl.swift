@@ -5,7 +5,7 @@ import ApplicationServices
 /// đồng hồ thời gian gọi do chính app hiển thị, trạng thái tắt mic / tắt tiếng, và bấm nút tắt mic / tắt tiếng / kết thúc.
 /// Không có API công khai nào khác; app nào không hiện nút ra cây Trợ năng thì chỉ có tên + thời gian suy ra từ micro.
 enum CallControl {
-    enum Action { case mute, deafen, end }
+    enum Action { case mute, deafen, camera, end, answer }
 
     /// Kết quả một lần quét cửa sổ của app đang gọi.
     struct Snapshot: Equatable {
@@ -19,6 +19,8 @@ enum CallControl {
         var muted: Bool?
         var deafened: Bool?
         var canEnd = false
+        /// Nút camera: true = camera đang bật. nil = app không có nút đó.
+        var cameraOn: Bool?
         /// Mọi nút đọc được, để chẩn đoán.
         var labels: [String] = []
     }
@@ -27,8 +29,14 @@ enum CallControl {
     private static let muteNames = [
         "mute", "unmute", "mute microphone", "unmute microphone", "turn off microphone", "turn on microphone",
         "mute mic", "unmute mic", "microphone", "tắt tiếng", "bật tiếng", "tắt mic", "bật mic",
-        "tắt micro", "bật micro", "tắt microphone", "bật microphone",
+        "tắt micro", "bật micro", "tắt microphone", "bật microphone", "tắt micrô", "bật micrô",
+        "mute_audio",   // ZaloCall (Qt) đặt objectName này cho nút mic
     ]
+    private static let cameraNames = [
+        "turn on camera", "turn off camera", "start video", "stop video", "start camera", "stop camera",
+        "bật camera", "tắt camera", "bật video", "tắt video", "camera", "video", "onoff_camera",
+    ]
+    private static let cameraOnHints = ["turn off", "stop", "tắt"]
     /// Đang tắt mic khi nút đề nghị "bật lại".
     private static let unmuteHints = ["unmute", "turn on", "bật", "microphone off", "muted"]
     private static let deafenNames = ["deafen", "undeafen", "tắt âm thanh", "bật âm thanh"]
@@ -36,13 +44,13 @@ enum CallControl {
     private static let endNames = [
         "disconnect", "leave call", "end call", "hang up", "hangup", "leave meeting", "end meeting",
         "kết thúc cuộc gọi", "kết thúc", "ngắt kết nối", "rời cuộc gọi", "rời cuộc họp", "cúp máy", "tắt máy",
-        "end", "leave", "rời",
+        "end", "leave", "rời", "end_call", "btnreject", "decline", "reject", "từ chối",
     ]
     /// Discord dịch "Mute" = "Tắt âm" (mic) và "Deafen" = "Tắt tiếng" (loa) – ngược với các app khác.
     private static let discordMuteNames = ["mute", "unmute", "tắt âm", "bật âm"]
     private static let discordDeafenNames = ["deafen", "undeafen", "tắt tiếng", "bật tiếng"]
     private static let discordBundle = "com.hnc.Discord"
-    private static let exactOnly: Set<String> = ["end", "leave", "rời", "mute", "unmute", "microphone"]
+    private static let exactOnly: Set<String> = ["end", "leave", "rời", "mute", "unmute", "microphone", "camera", "video", "reject", "decline"]
 
     private static let durationPattern = try! NSRegularExpression(pattern: #"^\s*(?:(\d{1,2}):)?(\d{1,2}):(\d{2})\s*$"#)
 
@@ -93,6 +101,7 @@ enum CallControl {
         var mute: Hit?
         var deafen: Hit?
         var end: Hit?
+        var camera: Hit?
         var all: [String] = []
     }
 
@@ -105,7 +114,10 @@ enum CallControl {
             let isMain = NSRunningApplication(processIdentifier: pid)?.bundleIdentifier == bundleID
             let app = AXUIElementCreateApplication(pid)
             // Electron (Discord, Zalo, Teams…) chỉ dựng cây Trợ năng khi được yêu cầu.
-            if deep { AXUIElementSetAttributeValue(app, "AXManualAccessibility" as CFString, kCFBooleanTrue) }
+            if deep {
+                AXUIElementSetAttributeValue(app, "AXManualAccessibility" as CFString, kCFBooleanTrue)
+                AXUIElementSetAttributeValue(app, "AXEnhancedUserInterface" as CFString, kCFBooleanTrue)   // WebKit / Chromium
+            }
             guard let windows = RecorderControl.attribute(app, kAXWindowsAttribute) as? [AXUIElement] else { continue }
 
             for window in windows {
@@ -125,13 +137,15 @@ enum CallControl {
                         if let text = RecorderControl.attribute(element, kAXValueAttribute) as? String { result.texts.append(text) }
                     } else if isControl(role) {
                         let found = labels(of: element)
-                        if let first = found.first, result.all.count < 60 { result.all.append("\(role ?? "?"): \(first)") }
+                        if result.all.count < 60 { result.all.append("\(role ?? "?"): \(found.first ?? "(không nhãn)")") }
                         let checked = (RecorderControl.attribute(element, kAXValueAttribute) as? NSNumber).map { $0.intValue == 1 }
                         let hit = Hit(element: element, labels: found, checked: role == kAXCheckBoxRole ? checked : nil)
                         if result.mute == nil, found.contains(where: { matches($0, muteSet) }) {
                             result.mute = hit
                         } else if result.deafen == nil, found.contains(where: { matches($0, deafenSet) }) {
                             result.deafen = hit
+                        } else if result.camera == nil, found.contains(where: { matches($0, cameraNames) }) {
+                            result.camera = hit
                         } else if result.end == nil, found.contains(where: { matches($0, endNames) }) {
                             result.end = hit
                         }
@@ -172,6 +186,7 @@ enum CallControl {
         snapshot.muted = found.mute.map { isDown($0, hints: unmuteHints) }
         snapshot.deafened = found.deafen.map { isDown($0, hints: undeafenHints) }
         snapshot.canEnd = found.end != nil
+        snapshot.cameraOn = found.camera.map { hit in hit.labels.contains { label in cameraOnHints.contains { label.hasPrefix($0) } } }
         return snapshot
     }
 
@@ -186,7 +201,9 @@ enum CallControl {
         switch action {
         case .mute: hit = found.mute
         case .deafen: hit = found.deafen
+        case .camera: hit = found.camera
         case .end: hit = found.end
+        case .answer: hit = nil   // chỉ có với cuộc gọi iPhone (PhoneCallMonitor)
         }
         guard let hit else { return false }
         return AXUIElementPerformAction(hit.element, kAXPressAction as CFString) == .success

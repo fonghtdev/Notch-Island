@@ -32,6 +32,10 @@ struct LiveActivity: Identifiable, Equatable {
     struct CallState: Equatable {
         var muted: Bool?
         var deafened: Bool?
+        /// true = camera đang bật; nil = app không có nút camera.
+        var camera: Bool?
+        /// Cuộc gọi đến đang đổ chuông: hiện nút trả lời / từ chối.
+        var ringing = false
     }
 
     /// Mốc để đồng hồ hiển thị nhảy đúng lúc giây của hoạt động tròn (không trễ tới 1 giây so với app gốc).

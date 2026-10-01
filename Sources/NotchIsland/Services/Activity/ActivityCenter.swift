@@ -11,11 +11,13 @@ final class ActivityCenter {
     private let stopwatch = StopwatchService()
     private let capture = CaptureMonitor()
     private let clock = SystemClockMonitor()
+    private let phone = PhoneCallMonitor()
 
     private var timerActivity: LiveActivity?
     private var stopwatchActivity: LiveActivity?
     private var captureActivities: [LiveActivity] = []
     private var clockActivities: [LiveActivity] = []
+    private var phoneActivities: [LiveActivity] = []
     private var captureEnabled = false
 
     /// Bản ghi âm đã bị bấm tạm dừng từ đảo. Khi tạm dừng app ghi âm có thể nhả micro (hoạt động biến mất khỏi
@@ -44,6 +46,10 @@ final class ActivityCenter {
             self?.clockActivities = list
             self?.publish()
         }
+        phone.onChange = { [weak self] list in
+            self?.phoneActivities = list
+            self?.publish()
+        }
     }
 
     /// Bật/tắt theo công tắc "Hoạt động đang diễn ra" trong Cài đặt.
@@ -53,11 +59,14 @@ final class ActivityCenter {
         if enabled {
             capture.start()
             clock.start()
+            phone.start()
         } else {
             capture.stop()
             clock.stop()
+            phone.stop()
             captureActivities = []
             clockActivities = []
+            phoneActivities = []
             pausedRecordings = [:]
             publish()
         }
@@ -72,11 +81,16 @@ final class ActivityCenter {
     func resetStopwatch() { stopwatch.reset() }
 
     func diagnoseClock(completion: @escaping (String) -> Void) { clock.diagnose(completion: completion) }
-    func diagnoseCalls(completion: @escaping (String) -> Void) { capture.diagnose(completion: completion) }
+    func diagnoseCalls(completion: @escaping (String) -> Void) {
+        capture.diagnose { [phone] report in completion(phone.diagnose() + "\n\n" + report) }
+    }
 
     func callActionDone(_ action: CallControl.Action, activityID: String) {
         capture.didPerform(action, activityID: activityID)
     }
+
+    /// Cuộc gọi điện thoại / FaceTime: điều khiển thẳng qua hệ thống, không cần Trợ năng.
+    func performPhone(_ action: CallControl.Action, id: String) -> Bool { phone.perform(action, id: id) }
 
     // MARK: - Ghi âm tạm dừng
 
@@ -123,6 +137,9 @@ final class ActivityCenter {
         }
 
         all.append(contentsOf: clockActivities)
+        // Cuộc gọi iPhone / FaceTime đã có hàng riêng: bỏ hàng FaceTime suy ra từ micro để khỏi trùng.
+        all.append(contentsOf: phoneActivities)
+        if !phoneActivities.isEmpty { all.removeAll { $0.bundleIdentifier == "com.apple.FaceTime" && $0.id.hasPrefix("mic:") } }
         if let timerActivity { all.append(timerActivity) }
         if let stopwatchActivity { all.append(stopwatchActivity) }
         all.sort { ($0.kind, $0.id) < ($1.kind, $1.id) }

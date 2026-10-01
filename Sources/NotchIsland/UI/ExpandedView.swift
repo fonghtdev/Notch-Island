@@ -31,7 +31,23 @@ struct ExpandedView: View {
             }
         }
         .frame(height: notch.height)
+        .overlay(alignment: .leading) { pageButton.padding(.leading, 18) }
         .animation(.spring(response: 0.3, dampingFraction: 0.85), value: viewModel.hud == nil)
+    }
+
+    /// Góc trên trái: ☰ (đang xem nhạc) mở màn hình chính có pin / hẹn giờ / camera; ở màn hình chính hoặc camera thì là nút quay lại.
+    @ViewBuilder
+    private var pageButton: some View {
+        switch viewModel.expandedLayout {
+        case .media:
+            ControlButton(symbol: "line.3.horizontal", size: 12, diameter: 24) { viewModel.showHome() }
+                .help("Pin, hẹn giờ, camera")
+        case .home, .camera:
+            ControlButton(symbol: "chevron.left", size: 12, diameter: 24) { viewModel.goBack() }
+                .help("Quay lại")
+        default:
+            EmptyView()
+        }
     }
 
     @ViewBuilder
@@ -66,12 +82,16 @@ struct ExpandedView: View {
                             .reveal(delay: Double(index) * 0.06)
                     }
                 }
-            case .idle:
+            case .idle, .home:
                 IdleCard(
                     battery: viewModel.battery,
                     onStartTimer: viewModel.startTimer,
-                    onStartStopwatch: viewModel.startStopwatch
+                    onStartStopwatch: viewModel.startStopwatch,
+                    onCamera: viewModel.toggleCamera
                 )
+            case .camera:
+                CameraCard()
+                    .reveal()
             }
         }
         .transition(.opacity)
@@ -258,6 +278,7 @@ struct IdleCard: View {
     let battery: BatteryInfo
     let onStartTimer: (Int) -> Void
     let onStartStopwatch: () -> Void
+    let onCamera: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -277,6 +298,8 @@ struct IdleCard: View {
                 }
                 StopwatchChip(action: onStartStopwatch)
                     .reveal(delay: 0.19)
+                CameraChip(action: onCamera)
+                    .reveal(delay: 0.23)
             }
         }
         .frame(maxWidth: .infinity)
@@ -320,6 +343,27 @@ struct TimerChip: View {
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.15), value: isHovering)
         .help("Hẹn giờ \(minutes) phút")
+    }
+}
+
+struct CameraChip: View {
+    let action: () -> Void
+    @State private var isHovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "camera.fill")
+                .font(.system(size: 12, weight: .semibold))
+                .frame(minWidth: 28)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 4)
+                .background(Capsule().fill(.white.opacity(isHovering ? 0.22 : 0.1)))
+                .scaleEffect(isHovering ? 1.06 : 1)
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovering = $0 }
+        .animation(.easeOut(duration: 0.15), value: isHovering)
+        .help("Xem camera")
     }
 }
 
