@@ -28,8 +28,16 @@ enum AppInfo {
         return hasRepo ? URL(string: "https://github.com/\(releaseRepo)") : nil
     }
 
-    static var newIssueURL: URL? {
-        hasRepo ? URL(string: "https://github.com/\(releaseRepo)/issues/new/choose") : nil
+    /// Form báo lỗi GitHub điền sẵn nội dung + chẩn đoán: người dùng chỉ cần bấm "Submit new issue".
+    @MainActor
+    static func reportURL(message: String) -> URL? {
+        guard hasRepo, var c = URLComponents(string: "https://github.com/\(releaseRepo)/issues/new") else { return nil }
+        let first = message.split(separator: "\n").first.map(String.init) ?? ""
+        c.queryItems = [
+            URLQueryItem(name: "title", value: String(first.prefix(80))),
+            URLQueryItem(name: "body", value: "\(message)\n\n---\n\(diagnostics())"),
+        ]
+        return c.url
     }
 
     static var releasesURL: URL? {

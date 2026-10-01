@@ -96,6 +96,14 @@ final class NotificationReader {
         return candidates.first { FileManager.default.fileExists(atPath: $0.path) }
     }
 
+    /// Có đọc được DB thông báo không (chính là phép thử quyền Toàn bộ ổ đĩa; lần thử này cũng khiến macOS liệt kê app trong danh sách).
+    static var hasAccess: Bool {
+        guard let url = databaseURL() else { return false }
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return false }
+        defer { try? handle.close() }
+        return (try? handle.read(upToCount: 1)) != nil
+    }
+
     private static func fetch(after baseline: Int64?) -> FetchResult {
         guard let source = databaseURL() else { return FetchResult(error: "không thấy cơ sở dữ liệu thông báo") }
 

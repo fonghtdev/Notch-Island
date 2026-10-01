@@ -21,9 +21,15 @@ final class SettingsWindowController {
         window.contentMinSize = NSSize(width: 500, height: 460)
         window.contentMaxSize = NSSize(width: 500, height: 1000)
         window.center()
+        // Trả app về chế độ accessory khi đóng Cài đặt.
+        NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { _ in
+            NSApp.setActivationPolicy(.accessory)
+        }
     }
 
     func show() {
+        // App accessory không có trong Cmd+Tab: tạm thời thành app thường (có icon Dock) khi Cài đặt đang mở.
+        NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }

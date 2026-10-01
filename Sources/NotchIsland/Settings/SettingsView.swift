@@ -8,7 +8,7 @@ struct SettingsView: View {
     /// Hiện thử một HUD thật trên đảo.
     let onPreviewOnIsland: (HUDEvent) -> Void
     @ObservedObject var updater: UpdateService
-    @State private var copiedDiagnostics = false
+    @State private var feedback = ""
 
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var launchError: String?
@@ -19,6 +19,8 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            guideSection
+
             Section("Hiển thị") {
                 Toggle("Nhạc đang phát", isOn: $settings.showNowPlaying)
                 Toggle("Ảnh bìa độ phân giải cao (tra iTunes, gửi tên bài tới Apple)", isOn: $settings.hdArtwork)
@@ -27,6 +29,11 @@ struct SettingsView: View {
                 Toggle("Tai nghe Bluetooth (thẻ 3D, pin)", isOn: $settings.showHeadphones)
                 Toggle("Hoạt động: hẹn giờ, cuộc gọi, ghi âm", isOn: $settings.showLiveActivities)
                 Toggle("HUD âm lượng, độ sáng, đèn bàn phím", isOn: $settings.showHUD)
+                Toggle("Thông báo trên màn hình khoá (cần quyền Toàn bộ ổ đĩa)", isOn: $settings.lockScreenNotifications)
+                    .disabled(!settings.showOnLockScreen)
+                    .onChange(of: settings.lockScreenNotifications) { on in
+                        if on { Onboarding.askFullDiskAccess() }
+                    }
             }
 
             if settings.showHUD {
@@ -84,10 +91,17 @@ struct SettingsView: View {
             } footer: {
                 Text("Chỉ hoạt động khi chạy từ gói NotchIsland.app (./scripts/build-app.sh), không áp dụng với swift run.")
             }
+
+            Section {
+                Button(role: .destructive) { Uninstaller.confirmAndRun() } label: {
+                    Label("Gỡ NotchIsland khỏi máy…", systemImage: "trash")
+                }
+            } footer: {
+                Text("Xoá app, cài đặt, dữ liệu tạm và các quyền đã cấp. Có hỏi xác nhận trước.")
+            }
         }
         .formStyle(.grouped)
         .frame(width: 500)
-        .frame(minHeight: 460, idealHeight: 700, maxHeight: 1000)
         .onAppear {
             screens = ScreenOption.connected()
             launchAtLogin = SMAppService.mainApp.status == .enabled
@@ -163,6 +177,32 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Hướng dẫn
+
+    private var guideSection: some View {
+        Section {
+            guideRow("capsule.fill", "Đảo nằm ngay notch", "Rê chuột vào notch (hoặc bấm, tuỳ mục Hành vi) để mở rộng: nhạc, hẹn giờ, hoạt động.")
+            guideRow("menubar.rectangle", "Biểu tượng trên thanh menu", "Bấm biểu tượng viên thuốc để đặt hẹn giờ, bấm giờ, mở Cài đặt hoặc thoát.")
+            guideRow("music.note", "Nhạc", "Phát nhạc ở Music, Spotify hoặc trình duyệt – bài hát tự hiện trên đảo, bấm thanh tiến trình để tua.")
+            guideRow("speaker.wave.2.fill", "Âm lượng, độ sáng", "Dùng phím như bình thường; HUD hiện trên đảo. Cần cấp quyền Trợ năng (xem mục Phím điều khiển).")
+            guideRow("headphones", "Tai nghe, sạc", "Kết nối tai nghe Bluetooth hoặc cắm sạc, đảo tự báo.")
+        } header: {
+            Text("Bắt đầu nhanh")
+        } footer: {
+            Text("App không có cửa sổ chính – mọi thứ nằm ở notch và menu bar. Gặp lỗi? Kéo xuống mục Hỗ trợ.")
+        }
+    }
+
+    private func guideRow(_ icon: String, _ title: String, _ detail: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon).frame(width: 22).foregroundStyle(.tint)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.subheadline.weight(.semibold))
+                Text(detail).font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+
     // MARK: - Hỗ trợ
 
     private var supportSection: some View {
@@ -170,28 +210,26 @@ struct SettingsView: View {
             if let support = AppInfo.supportURL {
                 Link(destination: support) { Label("Trang hỗ trợ & hướng dẫn", systemImage: "questionmark.circle") }
             }
-            if let issue = AppInfo.newIssueURL {
-                Link(destination: issue) { Label("Báo lỗi / góp ý tính năng", systemImage: "ladybug") }
-            }
             if let releases = AppInfo.releasesURL {
                 Link(destination: releases) { Label("Tất cả phiên bản", systemImage: "shippingbox") }
             }
-            HStack {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Báo lỗi / góp ý").font(.subheadline.weight(.semibold))
+                TextEditor(text: $feedback)
+                    .font(.body)
+                    .frame(height: 70)
+                    .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.quaternary))
                 Button {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(AppInfo.diagnostics(), forType: .string)
-                    copiedDiagnostics = true
+                    if let url = AppInfo.reportURL(message: feedback) { NSWorkspace.shared.open(url) }
                 } label: {
-                    Label("Sao chép thông tin chẩn đoán", systemImage: "doc.on.clipboard")
+                    Label("Gửi báo lỗi", systemImage: "paperplane")
                 }
-                if copiedDiagnostics {
-                    Text("Đã sao chép").font(.caption).foregroundStyle(.secondary)
-                }
+                .disabled(!AppInfo.hasRepo || feedback.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         } header: {
             Text("Hỗ trợ")
         } footer: {
-            Text("Khi báo lỗi, hãy dán thông tin chẩn đoán (chỉ gồm phiên bản app, macOS, chip và trạng thái quyền – không có dữ liệu cá nhân).")
+            Text("Mô tả lỗi rồi bấm Gửi: trình duyệt mở form GitHub đã điền sẵn nội dung và thông tin chẩn đoán (chỉ gồm phiên bản app, macOS, chip, trạng thái quyền – không có dữ liệu cá nhân). Bạn chỉ cần bấm \"Submit new issue\" (cần tài khoản GitHub).")
         }
     }
 
@@ -222,8 +260,6 @@ struct SettingsView: View {
     private var lockScreenSection: some View {
         Section {
             Toggle("Hiện thẻ giữa màn hình khoá", isOn: $settings.showOnLockScreen)
-            Toggle("Hiện thông báo trên màn hình khoá", isOn: $settings.lockScreenNotifications)
-                .disabled(!settings.showOnLockScreen)
         } header: {
             Text("Màn hình khoá (thử nghiệm)")
         } footer: {

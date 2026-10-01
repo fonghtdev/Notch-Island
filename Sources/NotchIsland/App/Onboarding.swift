@@ -53,4 +53,22 @@ enum Onboarding {
             MediaKeyTap.requestPermission()
         }
     }
+
+    /// macOS không có hộp thoại xin quyền Toàn bộ ổ đĩa: chỉ có thể giải thích rồi mở thẳng trang cấp quyền.
+    /// Chỉ hỏi đúng một lần; `hasAccess` cũng là phép thử khiến macOS liệt kê app trong danh sách quyền.
+    static func askFullDiskAccess() {
+        let defaults = UserDefaults.standard
+        guard !NotificationReader.hasAccess, !defaults.bool(forKey: "askedFullDiskAccess") else { return }
+        defaults.set(true, forKey: "askedFullDiskAccess")
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = "Cần quyền Toàn bộ ổ đĩa"
+        alert.informativeText = "Để đọc thông báo, hãy bật NotchIsland trong danh sách (bấm + nếu chưa thấy), rồi thoát và mở lại app."
+        alert.addButton(withTitle: "Mở Cài đặt hệ thống")
+        alert.addButton(withTitle: "Để sau")
+        if alert.runModal() == .alertFirstButtonReturn,
+           let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
+            NSWorkspace.shared.open(url)
+        }
+    }
 }

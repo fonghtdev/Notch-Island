@@ -33,6 +33,10 @@ struct BannerView: View {
             HeadphoneBanner(info: latest(of: info))
         case .timerFinished(let label)?:
             TimerDoneBanner(label: label)
+        case .farewell?:
+            FarewellBanner()
+        case .welcome?:
+            WelcomeBanner()
         case .charging?, .unplugged?, nil:
             EmptyView()
         }
@@ -277,6 +281,77 @@ struct TimerDoneBanner: View {
                     .foregroundStyle(.white.opacity(0.6))
             }
             Spacer()
+        }
+    }
+}
+
+// MARK: - Lời cảm ơn khi gỡ cài đặt
+
+struct FarewellBanner: View {
+    @State private var shown = false
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(.pink)
+                .scaleEffect(shown ? 1 : 0.3)
+            Text("Cảm ơn bạn đã sử dụng NotchIsland")
+                .font(.system(size: 13, weight: .semibold))
+            Text("Nếu có điều gì khiến bạn chưa hài lòng, hãy góp ý với mình qua fonght.dev@gmail.com")
+                .font(.system(size: 10))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white.opacity(0.6))
+        }
+        .opacity(shown ? 1 : 0)
+        .onAppear { withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.15)) { shown = true } }
+    }
+}
+
+// MARK: - Lời chào lần chạy đầu
+
+/// Chữ viết tay "hello" hiện dần từ trái sang phải (kiểu màn hình khởi động iPhone), rồi "xin chào",
+/// cuối cùng là lời nhắc mở Cài đặt từ biểu tượng trên thanh menu.
+struct WelcomeBanner: View {
+    private static let greetings = ["hello", "xin chào"]
+    @State private var index = 0
+    @State private var progress: CGFloat = 0
+    @State private var showHint = false
+
+    var body: some View {
+        ZStack {
+            if showHint {
+                (Text("Nhấn biểu tượng ") + Text(Image(systemName: "capsule.fill")) + Text(" trên thanh menu\nđể vào Cài đặt và tùy chỉnh theo cá nhân"))
+                    .font(.system(size: 12, weight: .medium))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.white.opacity(0.85))
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+            } else {
+                Text(Self.greetings[index])
+                    .font(.custom("Snell Roundhand", size: 34))
+                    .fixedSize()
+                    .mask(alignment: .leading) {
+                        GeometryReader { proxy in
+                            Rectangle().frame(width: proxy.size.width * progress)
+                        }
+                    }
+                    .transition(.opacity)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .onAppear { write() }
+    }
+
+    private func write() {
+        progress = 0
+        withAnimation(.easeInOut(duration: 1.6)) { progress = 1 }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            if index + 1 < Self.greetings.count {
+                index += 1
+                write()
+            } else {
+                withAnimation(.easeInOut(duration: 0.4)) { showHint = true }
+            }
         }
     }
 }

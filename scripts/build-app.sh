@@ -31,6 +31,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
 cp "$BIN_DIR/NotchIsland" "$APP/Contents/MacOS/NotchIsland"
 cp Support/Info.plist "$APP/Contents/Info.plist"
+cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
 # Nhúng adapter: script perl vào Resources, framework vào Frameworks.
 cp "$ADAPTER/bin/mediaremote-adapter.pl" "$APP/Contents/Resources/"

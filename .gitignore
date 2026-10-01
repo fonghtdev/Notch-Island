@@ -3,3 +3,4 @@ build/
 dist/
 Vendor/
 .DS_Store
+CLAUDE.md

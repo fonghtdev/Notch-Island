@@ -38,8 +38,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         self.settingsWindow = SettingsWindowController(settings: settings, updater: updater) { [weak viewModel] event in
             viewModel?.showHUD(event)
         }
+        Uninstaller.showFarewell = { [weak viewModel] in viewModel?.show(.farewell) }
         setupStatusItem()
-        Onboarding.runIfNeeded()
+        let firstRun = !UserDefaults.standard.bool(forKey: "didOnboard.v1")
+        if firstRun {
+            // Lần đầu: lời chào trên đảo trước, xong mới hỏi quyền và mở Cài đặt (đầu trang có "Bắt đầu nhanh").
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { viewModel.show(.welcome) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9 + IslandMetrics.welcomeDuration) { [weak self] in
+                Onboarding.runIfNeeded()
+                self?.openSettings()
+            }
+        } else {
+            Onboarding.runIfNeeded()
+        }
+        // Toggle đã bật từ trước (hoặc bản cũ) mà chưa có quyền → hỏi một lần.
+        if settings.showOnLockScreen && settings.lockScreenNotifications { Onboarding.askFullDiskAccess() }
         updater.startAutomaticChecks()
         updater.$state
             .receive(on: DispatchQueue.main)
@@ -132,6 +145,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(makeItem("Demo: tai nghe (AirPods)", #selector(demoEarbuds)))
         menu.addItem(makeItem("Demo: tai nghe (chụp tai)", #selector(demoOverEar)))
         menu.addItem(makeItem("Demo: thẻ màn hình khoá (8 giây)", #selector(demoLockScreen)))
+        menu.addItem(makeItem("Demo: lời chào lần đầu", #selector(demoWelcome)))
         menu.addItem(makeItem("Demo: HUD âm lượng", #selector(demoVolumeHUD)))
         menu.addItem(makeItem("Demo: HUD độ sáng", #selector(demoBrightnessHUD)))
         menu.addItem(makeItem("Demo: HUD đèn bàn phím", #selector(demoKeyboardHUD)))
@@ -222,6 +236,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func demoLockScreen() {
         viewModel?.previewLockScreen()
+    }
+
+    @objc private func demoWelcome() {
+        viewModel?.show(.welcome)
     }
 
     @objc private func demoVolumeHUD() {

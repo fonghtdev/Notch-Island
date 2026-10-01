@@ -34,6 +34,12 @@ enum IslandMetrics {
     /// Thẻ thông báo (banner): bề ngang cố định, chiều cao thêm phía dưới notch.
     static let bannerWidth: CGFloat = 330
     static let bannerExtraHeight: CGFloat = 60
+    static let welcomeExtraHeight: CGFloat = 70
+    /// Lời chào lần chạy đầu (5 giây viết chữ + 5 giây giữ dòng nhắc): "hello", "xin chào", rồi lời nhắc mở Cài đặt.
+    static let welcomeDuration: TimeInterval = 10
+    static let farewellExtraHeight: CGFloat = 84
+    /// Thẻ cảm ơn lúc gỡ cài đặt: giữ ~5 giây rồi app mới tắt.
+    static let farewellDuration: TimeInterval = 5
     /// Thẻ cắm / rút sạc: gọn hơn, chỉ một thanh pin và một dòng chữ dưới hàng notch.
     static let powerExtraHeight: CGFloat = 54
     static let headphoneExtraHeight: CGFloat = 88

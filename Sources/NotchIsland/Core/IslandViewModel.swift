@@ -74,6 +74,7 @@ final class IslandViewModel: ObservableObject {
         case .charging, .unplugged: return settings.showBatteryAlerts ? transient : nil
         case .headphones: return settings.showHeadphones ? transient : nil
         case .timerFinished: return settings.showLiveActivities ? transient : nil
+        case .farewell, .welcome: return transient
         }
     }
     var visibleActivities: [LiveActivity] { settings.showLiveActivities ? activities : [] }
@@ -127,6 +128,8 @@ final class IslandViewModel: ObservableObject {
             switch visibleTransient {
             case .headphones?: extra = IslandMetrics.headphoneExtraHeight
             case .charging?, .unplugged?: extra = IslandMetrics.powerExtraHeight
+            case .farewell?: extra = IslandMetrics.farewellExtraHeight
+            case .welcome?: extra = IslandMetrics.welcomeExtraHeight
             default: break
             }
             return CGSize(
@@ -169,6 +172,8 @@ final class IslandViewModel: ObservableObject {
 
     func setExpanded(_ expanded: Bool) {
         guard expanded != isExpanded else { return }
+        // Lời chào / lời cảm ơn: rê chuột hay bấm vào cũng không mở đảo, để thẻ không bị ngắt giữa chừng.
+        if expanded, transient == .welcome || transient == .farewell { return }
         isExpanded = expanded
     }
 

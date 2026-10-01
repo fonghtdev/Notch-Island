@@ -122,12 +122,16 @@ enum TransientActivity: Equatable {
     case unplugged(BatteryInfo)
     case headphones(HeadphoneInfo)
     case timerFinished(String)
+    case farewell
+    case welcome
 
     /// Thời gian hiện trước khi tự ẩn.
     var duration: TimeInterval {
         switch self {
         case .headphones: return 4.5
         case .timerFinished: return 6
+        case .farewell: return IslandMetrics.farewellDuration
+        case .welcome: return IslandMetrics.welcomeDuration
         case .charging, .unplugged: return IslandMetrics.transientDuration
         }
     }
