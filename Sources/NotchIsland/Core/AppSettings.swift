@@ -14,6 +14,8 @@ final class AppSettings: ObservableObject {
         static let showLiveActivities = "showLiveActivities"
         static let showHeadphones = "showHeadphones"
         static let hdArtwork = "hdArtwork"
+        static let autoCheckUpdates = "autoCheckUpdates"
+        static let keyboardShortcut = "keyboardShortcut"
         static let showOnLockScreen = "showOnLockScreen"
         static let lockScreenNotifications = "lockScreenNotifications"
         static let hoverToExpand = "hoverToExpand"
@@ -48,6 +50,14 @@ final class AppSettings: ObservableObject {
     /// Hiện hoạt động đang diễn ra: hẹn giờ, cuộc gọi (Discord, Meet…), ghi âm, camera.
     @Published var showLiveActivities: Bool {
         didSet { defaults.set(showLiveActivities, forKey: Key.showLiveActivities) }
+    }
+    /// Phím tắt fn+F1 / fn+F2 chỉnh đèn bàn phím (chỉ khi máy có đèn bàn phím).
+    @Published var keyboardShortcut: Bool {
+        didSet { defaults.set(keyboardShortcut, forKey: Key.keyboardShortcut) }
+    }
+    /// Tự kiểm tra bản mới trên GitHub Releases (không gửi dữ liệu cá nhân).
+    @Published var autoCheckUpdates: Bool {
+        didSet { defaults.set(autoCheckUpdates, forKey: Key.autoCheckUpdates) }
     }
     /// Tra ảnh bìa độ phân giải cao trên iTunes (gửi tên bài + nghệ sĩ tới Apple).
     @Published var hdArtwork: Bool {
@@ -141,6 +151,8 @@ final class AppSettings: ObservableObject {
             Key.showLiveActivities: true,
             Key.showHeadphones: true,
             Key.hdArtwork: true,
+            Key.autoCheckUpdates: true,
+            Key.keyboardShortcut: true,
             Key.showOnLockScreen: true,
             Key.lockScreenNotifications: false,
             Key.hoverToExpand: true,
@@ -168,6 +180,8 @@ final class AppSettings: ObservableObject {
         showLiveActivities = defaults.bool(forKey: Key.showLiveActivities)
         showHeadphones = defaults.bool(forKey: Key.showHeadphones)
         hdArtwork = defaults.bool(forKey: Key.hdArtwork)
+        autoCheckUpdates = defaults.bool(forKey: Key.autoCheckUpdates)
+        keyboardShortcut = defaults.bool(forKey: Key.keyboardShortcut)
         showOnLockScreen = defaults.bool(forKey: Key.showOnLockScreen)
         lockScreenNotifications = defaults.bool(forKey: Key.lockScreenNotifications)
         hoverToExpand = defaults.bool(forKey: Key.hoverToExpand)

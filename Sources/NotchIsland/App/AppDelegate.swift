@@ -9,6 +9,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var windowController: NotchWindowController?
     private var lockScreenController: LockScreenController?
     private var settingsWindow: SettingsWindowController?
+    private var updater: UpdateService?
+    private let updateItem = NSMenuItem(title: "Kiểm tra cập nhật…", action: nil, keyEquivalent: "")
     private var statusItem: NSStatusItem?
     /// Mục "Nâng cao" (demo, chẩn đoán): chỉ hiện khi giữ phím Option lúc mở menu.
     private let advancedItem = NSMenuItem(title: "Nâng cao", action: nil, keyEquivalent: "")
@@ -26,16 +28,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let windowController = NotchWindowController(viewModel: viewModel)
         windowController.show()
         let lockScreenController = LockScreenController(viewModel: viewModel)
+        let updater = UpdateService(settings: settings)
 
         self.lockScreenController = lockScreenController
         self.settings = settings
         self.viewModel = viewModel
         self.windowController = windowController
-        self.settingsWindow = SettingsWindowController(settings: settings) { [weak viewModel] event in
+        self.updater = updater
+        self.settingsWindow = SettingsWindowController(settings: settings, updater: updater) { [weak viewModel] event in
             viewModel?.showHUD(event)
         }
         setupStatusItem()
         Onboarding.runIfNeeded()
+        updater.startAutomaticChecks()
+        updater.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in self?.refreshUpdateItem(state) }
+            .store(in: &cancellables)
 
         viewModel.$nowPlayingProvider
             .receive(on: DispatchQueue.main)
@@ -55,6 +64,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(makeStopwatchMenu())
         menu.addItem(.separator())
         menu.addItem(makeItem("Cài đặt…", #selector(openSettings), key: ","))
+        updateItem.target = self
+        updateItem.action = #selector(checkForUpdates)
+        menu.addItem(updateItem)
+        menu.addItem(makeItem("Hỗ trợ…", #selector(openSupport)))
 
         advancedItem.submenu = makeAdvancedMenu()
         advancedItem.isHidden = true
@@ -69,6 +82,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         item.menu = menu
         statusItem = item
+    }
+
+    private func refreshUpdateItem(_ state: UpdateService.State) {
+        switch state {
+        case .available(let release): updateItem.title = "⬆︎ Cập nhật lên \(release.version)…"
+        case .checking: updateItem.title = "Đang kiểm tra cập nhật…"
+        case .downloading(let value): updateItem.title = "Đang tải bản mới… \(Int((value * 100).rounded()))%"
+        case .installing: updateItem.title = "Đang cài đặt…"
+        default: updateItem.title = "Kiểm tra cập nhật…"
+        }
+    }
+
+    @objc private func checkForUpdates() {
+        guard let updater else { return }
+        if updater.availableRelease != nil {
+            updater.install()
+            return
+        }
+        Task { @MainActor in
+            await updater.check(userInitiated: true)
+            switch updater.state {
+            case .upToDate:
+                NSApp.activate(ignoringOtherApps: true)
+                let alert = NSAlert()
+                alert.messageText = "Bạn đang dùng bản mới nhất"
+                alert.informativeText = "NotchIsland \(AppInfo.version)"
+                alert.runModal()
+            case .failed(let message):
+                NSApp.activate(ignoringOtherApps: true)
+                let alert = NSAlert()
+                alert.messageText = "Không kiểm tra được cập nhật"
+                alert.informativeText = message
+                alert.runModal()
+            default: break
+            }
+        }
+    }
+
+    @objc private func openSupport() {
+        if let url = AppInfo.supportURL { NSWorkspace.shared.open(url) } else { openSettings() }
     }
 
     /// Công cụ cho người phát triển / báo lỗi; người dùng thường không thấy.

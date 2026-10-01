@@ -1,6 +1,7 @@
 # NotchIsland
 
 Dynamic Island cho macOS – mã nguồn mở, viết bằng Swift + SwiftUI, không phụ thuộc thư viện ngoài.
+Một bản thay thế tự xây cho Alcove.
 
 ## Tính năng (v0.10)
 
@@ -182,3 +183,10 @@ Lần mở đầu tiên NotchIsland tự bật **Mở cùng macOS** và hiện m
 ### Ảnh bìa độ phân giải cao
 
 Ảnh bìa mà player gửi qua MediaRemote thường chỉ vài trăm pixel. NotchIsland tra thêm trên iTunes Search API (chỉ gửi tên bài + nghệ sĩ tới Apple) và dùng ảnh 1200×1200 khi tên bài và nghệ sĩ khớp rõ ràng; không khớp thì giữ ảnh gốc, hiển thị đúng tỉ lệ (vuông hoặc ngang). Tắt trong Cài đặt → Hiển thị nếu không muốn.
+
+## Tự cập nhật & trang hỗ trợ
+
+- **Tự cập nhật (không dùng Sparkle, không thêm phụ thuộc):** app hỏi `GET /repos/<RELEASE_REPO>/releases/latest`, so số phiên bản, hỏi người dùng rồi tải DMG → chép app mới đè lên app cũ → mở lại. Tải bằng URLSession nên file không bị gắn quarantine, bản mới mở lên không gặp lại cảnh báo Gatekeeper. Kiểm tra mỗi ~6 giờ (tắt được trong Cài đặt → Cập nhật) và có mục "Kiểm tra cập nhật…" trên menu bar.
+- **Kho phát hành:** CI tự ghi `RELEASE_REPO = github.repository` vào Info.plist. Mô hình 2 kho (mã nguồn kín): tạo kho **công khai** chỉ chứa Releases, đặt *Repository variable* `RELEASE_REPO` = `owner/ten-kho-cong-khai` (API Releases của kho riêng tư cần token nên không dùng được). Build cục bộ: `RELEASE_REPO=owner/name ./scripts/build-app.sh`.
+- **Lưu ý ký ad-hoc:** mỗi bản ký ad-hoc có chữ ký khác nhau nên macOS có thể "quên" quyền Trợ năng sau khi cập nhật – app tự nhắc cấp lại một lần. Có Apple Developer ID (`SIGN_IDENTITY`) thì quyền được giữ nguyên.
+- **Trang hỗ trợ:** `docs/index.html` (FAQ tiếng Việt). Bật GitHub Pages: Settings → Pages → Deploy from branch → `main` / `docs`; rồi đặt variable `SUPPORT_URL` = địa chỉ trang đó để nút "Trang hỗ trợ" trong app trỏ tới. Có sẵn mẫu issue (`.github/ISSUE_TEMPLATE`) và nút "Sao chép thông tin chẩn đoán" trong Cài đặt → Hỗ trợ.

@@ -4,6 +4,8 @@
 # Biến môi trường (tuỳ chọn):
 #   UNIVERSAL=1        build chạy được cả Apple Silicon lẫn Intel
 #   VERSION=1.2.3      ghi số phiên bản vào Info.plist
+#   RELEASE_REPO=owner/name   kho GitHub chứa Releases (để app tự cập nhật + link báo lỗi)
+#   SUPPORT_URL=https://…     trang hỗ trợ riêng (mặc định: trang chủ kho)
 #   SIGN_IDENTITY="Developer ID Application: …"   ký thật (mặc định: ký ad-hoc)
 set -euo pipefail
 
@@ -37,6 +39,13 @@ cp -R "$ADAPTER/build/MediaRemoteAdapter.framework" "$APP/Contents/Frameworks/"
 if [ -n "${VERSION:-}" ]; then
     /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist"
     /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${BUILD_NUMBER:-$VERSION}" "$APP/Contents/Info.plist"
+fi
+
+if [ -n "${RELEASE_REPO:-}" ]; then
+    /usr/libexec/PlistBuddy -c "Set :NIReleaseRepo $RELEASE_REPO" "$APP/Contents/Info.plist"
+fi
+if [ -n "${SUPPORT_URL:-}" ]; then
+    /usr/libexec/PlistBuddy -c "Set :NISupportURL $SUPPORT_URL" "$APP/Contents/Info.plist"
 fi
 
 # Ký (framework trước, app sau). Có SIGN_IDENTITY → ký Developer ID + hardened runtime (để notarize); không → ký ad-hoc.

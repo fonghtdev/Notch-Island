@@ -7,7 +7,8 @@ struct SettingsView: View {
     @ObservedObject var settings: AppSettings
     /// Hiện thử một HUD thật trên đảo.
     let onPreviewOnIsland: (HUDEvent) -> Void
-
+    @ObservedObject var updater: UpdateService
+    @State private var copiedDiagnostics = false
 
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var launchError: String?
@@ -31,10 +32,14 @@ struct SettingsView: View {
             if settings.showHUD {
                 Section {
                     accessibilityStatus
+                    Toggle("Phím tắt chỉnh đèn bàn phím", isOn: $settings.keyboardShortcut)
+                    if settings.keyboardShortcut {
+                        keyboardShortcutGuide
+                    }
                 } header: {
                     Text("Phím điều khiển")
                 } footer: {
-                    Text("NotchIsland tự thay HUD âm lượng / độ sáng / đèn bàn phím của macOS khi có quyền Trợ năng – cấp quyền xong là áp dụng ngay, không cần mở lại app.")
+                    Text("NotchIsland tự thay HUD âm lượng / độ sáng / đèn bàn phím của macOS khi có quyền Trợ năng – cấp quyền xong là áp dụng ngay, không cần mở lại app. Phím tắt đèn bàn phím dành cho máy không có phím đèn riêng; nếu macOS hỏi quyền Giám sát đầu vào (Input Monitoring) thì hãy cho phép.")
                 }
             }
 
@@ -62,6 +67,10 @@ struct SettingsView: View {
                 }
             }
 
+            updateSection
+
+            supportSection
+
             Section {
                 Toggle("Mở cùng macOS", isOn: Binding(
                     get: { launchAtLogin },
@@ -77,10 +86,134 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 500, height: 820)
+        .frame(width: 500)
+        .frame(minHeight: 460, idealHeight: 700, maxHeight: 1000)
         .onAppear {
             screens = ScreenOption.connected()
             launchAtLogin = SMAppService.mainApp.status == .enabled
+        }
+    }
+
+    // MARK: - Cập nhật
+
+    private var updateSection: some View {
+        Section {
+            LabeledContent("Phiên bản", value: "\(AppInfo.version) (\(AppInfo.build))")
+            Toggle("Tự kiểm tra cập nhật", isOn: $settings.autoCheckUpdates)
+                .disabled(!AppInfo.hasRepo)
+            updateRow
+        } header: {
+            Text("Cập nhật")
+        } footer: {
+            Text(AppInfo.hasRepo
+                 ? "App hỏi GitHub Releases khoảng 6 giờ một lần, chỉ gửi số phiên bản. Bản mới được tải, thay thế và mở lại tự động khi bạn đồng ý."
+                 : "Bản build cục bộ chưa gắn kho phát hành nên không tự cập nhật. Bản tải từ trang Releases thì có.")
+        }
+    }
+
+    @ViewBuilder
+    private var updateRow: some View {
+        switch updater.state {
+        case .idle, .upToDate:
+            HStack {
+                if updater.state == .upToDate {
+                    Label("Bạn đang dùng bản mới nhất", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
+                Spacer()
+                Button("Kiểm tra ngay") { Task { await updater.check(userInitiated: true) } }
+                    .disabled(!AppInfo.hasRepo)
+            }
+        case .checking:
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text("Đang kiểm tra…").foregroundStyle(.secondary)
+            }
+        case .available(let release):
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Có bản mới \(release.version)", systemImage: "arrow.down.circle.fill")
+                    .font(.subheadline.weight(.semibold))
+                if !release.notes.isEmpty {
+                    Text(release.notes).font(.caption).foregroundStyle(.secondary).lineLimit(6)
+                }
+                HStack {
+                    Button("Cập nhật & khởi động lại") { updater.install() }
+                        .buttonStyle(.borderedProminent)
+                    if let page = release.pageURL {
+                        Link("Xem chi tiết", destination: page)
+                    }
+                }
+            }
+        case .downloading(let fraction):
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Đang tải bản mới… \(Int((fraction * 100).rounded()))%")
+                ProgressView(value: fraction)
+            }
+        case .installing:
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text("Đang cài đặt, app sẽ tự mở lại…").foregroundStyle(.secondary)
+            }
+        case .failed(let message):
+            VStack(alignment: .leading, spacing: 6) {
+                Text(message).font(.caption).foregroundStyle(.red)
+                Button("Thử lại") { Task { await updater.check(userInitiated: true) } }
+                    .disabled(!AppInfo.hasRepo)
+            }
+        }
+    }
+
+    // MARK: - Hỗ trợ
+
+    private var supportSection: some View {
+        Section {
+            if let support = AppInfo.supportURL {
+                Link(destination: support) { Label("Trang hỗ trợ & hướng dẫn", systemImage: "questionmark.circle") }
+            }
+            if let issue = AppInfo.newIssueURL {
+                Link(destination: issue) { Label("Báo lỗi / góp ý tính năng", systemImage: "ladybug") }
+            }
+            if let releases = AppInfo.releasesURL {
+                Link(destination: releases) { Label("Tất cả phiên bản", systemImage: "shippingbox") }
+            }
+            HStack {
+                Button {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(AppInfo.diagnostics(), forType: .string)
+                    copiedDiagnostics = true
+                } label: {
+                    Label("Sao chép thông tin chẩn đoán", systemImage: "doc.on.clipboard")
+                }
+                if copiedDiagnostics {
+                    Text("Đã sao chép").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+        } header: {
+            Text("Hỗ trợ")
+        } footer: {
+            Text("Khi báo lỗi, hãy dán thông tin chẩn đoán (chỉ gồm phiên bản app, macOS, chip và trạng thái quyền – không có dữ liệu cá nhân).")
+        }
+    }
+
+    // MARK: - Hướng dẫn phím tắt đèn bàn phím
+
+    private var keyboardShortcutGuide: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Cách chỉnh đèn bàn phím")
+                .font(.subheadline.weight(.semibold))
+            shortcutRow(keys: ["fn", "1"], action: "Giảm đèn bàn phím")
+            shortcutRow(keys: ["fn", "2"], action: "Tăng đèn bàn phím")
+            Text("Giữ phím để tăng / giảm liên tục; HUD hiện trên đảo. Máy không có đèn bàn phím thì phím được trả về cho macOS. Cũng chỉnh được bằng thanh trượt trong Trung tâm điều khiển.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func shortcutRow(keys: [String], action: String) -> some View {
+        HStack(spacing: 6) {
+            ForEach(keys, id: \.self) { key in KeyCap(label: key) }
+            Text(action).foregroundStyle(.secondary).padding(.leading, 4)
         }
     }
 
@@ -134,8 +267,6 @@ struct SettingsView: View {
 
     private var hudAppearanceSection: some View {
         Section {
-            preview
-
             Picker("Xem trước", selection: $previewKind) {
                 Text("Âm lượng").tag(HUDEvent.Kind.volume)
                 Text("Độ sáng").tag(HUDEvent.Kind.brightness)
@@ -173,7 +304,10 @@ struct SettingsView: View {
                 Button("Về mặc định", role: .destructive) { settings.resetAppearance() }
             }
         } header: {
-            Text("Giao diện HUD")
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Giao diện HUD")
+                preview
+            }
         } footer: {
             Text("Áp dụng cho HUD âm lượng, độ sáng và đèn bàn phím.")
         }
@@ -183,35 +317,41 @@ struct SettingsView: View {
     private var preview: some View {
         let notch = CGSize(width: 150, height: 32)
         let appearance = settings.hudAppearance
-        let width = notch.width + IslandMetrics.compactWingWidth * 2 + IslandMetrics.hudExtraWidth
+        let width = notch.width + IslandMetrics.hudWingWidth * 2
         let height = notch.height + appearance.extraHeight
 
         let shape = NotchShape(earRadius: IslandMetrics.earRadius, bottomRadius: IslandMetrics.collapsedBottomRadius)
 
+        // Khung xem trước cao cố định (đủ cho HUD cao nhất) → hàng trong Form không đổi chiều cao khi đổi kiểu HUD.
         return ZStack(alignment: .top) {
-            IslandBackground(shape: shape, surface: settings.islandSurface)
-                .frame(width: width + IslandMetrics.earRadius * 2, height: height)
-
-            HUDView(
-                event: HUDEvent(kind: previewKind, value: previewValue),
-                notchSize: notch,
-                appearance: appearance
-            )
-            .frame(width: width, height: height, alignment: .top)
-        }
-        .frame(maxWidth: .infinity, minHeight: 32 + 30 + 8, alignment: .top)
-        .padding(.vertical, 6)
-        // Nền màu sặc sỡ phía sau để thấy rõ hiệu ứng kính / kính mờ khi xem trước.
-        .background(
+            // Nền màu sặc sỡ phía sau để thấy rõ hiệu ứng kính / kính mờ khi xem trước.
             LinearGradient(
                 colors: [.pink, .orange, .yellow, .mint, .blue],
                 startPoint: .leading,
                 endPoint: .trailing
             )
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        )
-        .animation(.easeOut(duration: 0.15), value: appearance.extraHeight)
+
+            ZStack(alignment: .top) {
+                IslandBackground(shape: shape, surface: settings.islandSurface)
+                    .frame(width: width + IslandMetrics.earRadius * 2, height: height)
+
+                HUDView(
+                    event: HUDEvent(kind: previewKind, value: previewValue),
+                    notchSize: notch,
+                    appearance: appearance
+                )
+                .frame(width: width, height: height, alignment: .top)
+            }
+            .frame(width: width + IslandMetrics.earRadius * 2, height: height, alignment: .top)
+            .environment(\.colorScheme, .dark)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: Self.previewHeight, alignment: .top)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .textCase(nil)
     }
+
+    private static let previewHeight: CGFloat = 96
 
     private func slider(_ title: String, value: Binding<Double>, range: ClosedRange<Double>, display: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -265,6 +405,24 @@ struct SettingsView: View {
             launchError = "Không đổi được: \(error.localizedDescription)"
         }
         launchAtLogin = service.status == .enabled
+    }
+}
+
+/// Hình phím bàn phím nhỏ trong phần hướng dẫn.
+struct KeyCap: View {
+    let label: String
+
+    var body: some View {
+        Text(label)
+            .font(.system(size: 12, weight: .semibold, design: .rounded))
+            .frame(minWidth: 26)
+            .padding(.vertical, 4)
+            .padding(.horizontal, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(.quaternary)
+                    .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(.tertiary, lineWidth: 1))
+            )
     }
 }
 

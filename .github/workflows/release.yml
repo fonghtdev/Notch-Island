@@ -17,6 +17,9 @@ jobs:
   build:
     runs-on: macos-latest
     env:
+      # Kho chứa Releases mà app sẽ hỏi để tự cập nhật. Mô hình 2 kho (mã nguồn kín): đặt biến RELEASE_REPO = kho công khai.
+      RELEASE_REPO: ${{ vars.RELEASE_REPO || github.repository }}
+      SUPPORT_URL: ${{ vars.SUPPORT_URL }}
       # Tuỳ chọn – chỉ cần khi bạn có Apple Developer ID (xem README). Không có thì app ký ad-hoc.
       MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
       MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
@@ -25,7 +28,7 @@ jobs:
       NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
       NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Cài cmake
         run: brew list cmake >/dev/null 2>&1 || brew install cmake
@@ -49,8 +52,11 @@ jobs:
           VERSION="$VERSION" BUILD_NUMBER="$GITHUB_RUN_NUMBER" ./scripts/make-dmg.sh
 
       - name: Đăng lên GitHub Releases
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
+          # Mô hình 2 kho: đăng Release sang kho công khai (cần secret RELEASES_TOKEN). Một kho: tự dùng kho hiện tại.
+          repository: ${{ vars.RELEASE_REPO || github.repository }}
+          token: ${{ secrets.RELEASES_TOKEN || github.token }}
           tag_name: ${{ github.event.inputs.version && format('v{0}', github.event.inputs.version) || github.ref_name }}
           files: |
             dist/*.dmg

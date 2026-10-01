@@ -19,19 +19,34 @@ enum Onboarding {
         return false
     }
 
+    private static let versionKey = "lastLaunchedVersion"
+
     static func runIfNeeded() {
         let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: doneKey) else { return }
+        let previous = defaults.string(forKey: versionKey)
+        defaults.set(AppInfo.version, forKey: versionKey)
+
+        guard !defaults.bool(forKey: doneKey) else {
+            // Vừa cập nhật: bản ký ad-hoc có thể làm macOS quên quyền Trợ năng → nhắc cấp lại một lần.
+            if let previous, previous != AppInfo.version, !MediaKeyTap.hasPermission {
+                askAccessibility(intro: "NotchIsland vừa cập nhật lên \(AppInfo.version). macOS có thể đã quên quyền Trợ năng sau khi cập nhật.\n\n")
+            }
+            return
+        }
         defaults.set(true, forKey: doneKey)
 
         // Mở cùng macOS: bật sẵn (người dùng vẫn tắt được trong Cài đặt).
         try? SMAppService.mainApp.register()
 
         guard !MediaKeyTap.hasPermission else { return }
+        askAccessibility(intro: "NotchIsland đã được bật tự khởi động cùng macOS.\n\n")
+    }
+
+    private static func askAccessibility(intro: String) {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
-        alert.messageText = "Chào mừng đến với NotchIsland"
-        alert.informativeText = "NotchIsland đã được bật tự khởi động cùng macOS.\n\nĐể thay HUD âm lượng / độ sáng mặc định của macOS, app cần quyền Trợ năng. Bấm \"Cấp quyền\", bật NotchIsland trong danh sách – app sẽ tự áp dụng ngay, không cần mở lại."
+        alert.messageText = "Cần quyền Trợ năng"
+        alert.informativeText = intro + "Để thay HUD âm lượng / độ sáng mặc định của macOS, app cần quyền Trợ năng. Bấm \"Cấp quyền\", bật NotchIsland trong danh sách – app sẽ tự áp dụng ngay, không cần mở lại."
         alert.addButton(withTitle: "Cấp quyền")
         alert.addButton(withTitle: "Để sau")
         if alert.runModal() == .alertFirstButtonReturn {

@@ -27,7 +27,8 @@ enum IslandMetrics {
     static let fakeNotchSize = CGSize(width: 190, height: 32)
 
     /// HUD: rộng hơn compact một chút (chiều cao thêm phụ thuộc kiểu HUD, xem `HUDAppearance`).
-    static let hudExtraWidth: CGFloat = 40
+    /// HUD: icon ở cánh trái, giá trị ở cánh phải; bề ngang bằng đúng chế độ compact (không nới thêm) để hai bên không bị tách xa.
+    static let hudWingWidth: CGFloat = 44
     static let hudDuration: TimeInterval = 1.6
 
     /// Thẻ thông báo (banner): bề ngang cố định, chiều cao thêm phía dưới notch.

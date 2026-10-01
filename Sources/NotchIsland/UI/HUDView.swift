@@ -6,6 +6,8 @@ struct HUDView: View {
     let event: HUDEvent
     let notchSize: CGSize
     let appearance: HUDAppearance
+    /// Thẻ mở rộng: chỉ có hàng notch, nên thanh / vạch thu nhỏ vào cánh phải thay cho vòng giá trị.
+    var inline = false
 
     private var tint: Color { appearance.color(for: event.kind) }
 
@@ -15,16 +17,17 @@ struct HUDView: View {
                 Image(systemName: event.symbolName)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(tint)
-                    .frame(width: IslandMetrics.compactWingWidth)
+                    .symbolSwap()
+                    .frame(width: IslandMetrics.hudWingWidth)
 
                 Spacer(minLength: notchSize.width)
 
                 trailing
-                    .frame(width: IslandMetrics.compactWingWidth)
+                    .frame(width: IslandMetrics.hudWingWidth)
             }
             .frame(height: notchSize.height)
 
-            switch appearance.style {
+            switch inline ? HUDStyle.ring : appearance.style {
             case .bar:
                 HUDBar(value: event.displayValue, tint: tint, appearance: appearance)
                     .padding(.horizontal, 18)
@@ -44,7 +47,13 @@ struct HUDView: View {
 
     @ViewBuilder
     private var trailing: some View {
-        if appearance.style == .ring {
+        if inline, appearance.style == .bar {
+            HUDBar(value: event.displayValue, tint: tint, appearance: appearance)
+                .frame(width: 34)
+        } else if inline, appearance.style == .segments {
+            HUDSegments(value: event.displayValue, tint: tint, appearance: appearance, count: 8)
+                .frame(width: 34)
+        } else if appearance.style == .ring {
             HUDRing(value: event.displayValue, tint: tint, appearance: appearance)
         } else if appearance.showsPercent {
             Text(event.isMuted ? "Tắt" : "\(Int((event.displayValue * 100).rounded()))")
@@ -87,13 +96,14 @@ struct HUDSegments: View {
     let value: Double
     let tint: Color
     let appearance: HUDAppearance
+    var count = HUDSegments.count
 
     var body: some View {
         let height = appearance.barHeight + 2
-        let filled = Int((value * Double(Self.count)).rounded())
+        let filled = Int((value * Double(count)).rounded())
 
-        HStack(spacing: 2) {
-            ForEach(0..<Self.count, id: \.self) { index in
+        HStack(spacing: count > 8 ? 2 : 1.5) {
+            ForEach(0..<count, id: \.self) { index in
                 RoundedRectangle(
                     cornerRadius: min(appearance.corner.radius(forHeight: height), 3),
                     style: .continuous

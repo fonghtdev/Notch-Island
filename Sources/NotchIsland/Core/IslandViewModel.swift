@@ -119,7 +119,7 @@ final class IslandViewModel: ObservableObject {
             return CGSize(width: notch.width + wing * 2, height: notch.height)
         case .hud:
             return CGSize(
-                width: notch.width + wing * 2 + IslandMetrics.hudExtraWidth,
+                width: notch.width + IslandMetrics.hudWingWidth * 2,
                 height: notch.height + settings.hudAppearance.extraHeight
             )
         case .banner:
@@ -414,6 +414,7 @@ final class IslandViewModel: ObservableObject {
 
     private func applyHUDInterception() {
         hudService.keyboardControlEnabled = true
+        hudService.keyboardShortcutEnabled = settings.keyboardShortcut
         hudService.setIntercepting(settings.showHUD)
     }
 

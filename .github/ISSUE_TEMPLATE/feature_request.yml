@@ -1,0 +1,14 @@
+name: Góp ý tính năng / Feature request
+description: Đề xuất điều bạn muốn NotchIsland làm được
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Bạn muốn gì? / What would you like?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Dùng trong tình huống nào? / Use case

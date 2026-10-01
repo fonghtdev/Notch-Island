@@ -6,8 +6,9 @@ struct ExpandedView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Hàng ngang notch: để trống cho camera.
-            Color.clear.frame(height: viewModel.geometry.notchSize.height)
+            // Hàng ngang notch: để trống cho camera. Đang chỉnh âm lượng / độ sáng / đèn phím thì hiện đúng HUD
+            // của chế độ thu gọn ở đây (icon trái, vòng giá trị phải) ngay trên phần nhạc, không đè lên nội dung.
+            topRow
 
             content
                 .padding(.horizontal, 20)
@@ -15,6 +16,22 @@ struct ExpandedView: View {
                 .frame(maxHeight: .infinity)
         }
         .foregroundStyle(.white)
+    }
+
+    private var topRow: some View {
+        let notch = viewModel.geometry.notchSize
+        let appearance = viewModel.settings.hudAppearance
+
+        return ZStack {
+            Color.clear
+            if let hud = viewModel.hud {
+                HUDView(event: hud, notchSize: notch, appearance: appearance, inline: true)
+                    .frame(width: notch.width + IslandMetrics.hudWingWidth * 2)
+                    .transition(.opacity.combined(with: .scale(scale: 0.92)))
+            }
+        }
+        .frame(height: notch.height)
+        .animation(.spring(response: 0.3, dampingFraction: 0.85), value: viewModel.hud == nil)
     }
 
     @ViewBuilder

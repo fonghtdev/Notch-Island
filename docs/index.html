@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NotchIsland – Hỗ trợ</title>
+<style>
+  :root { color-scheme: light dark; --fg:#1d1d1f; --bg:#fff; --mut:#6e6e73; --card:#f5f5f7; --acc:#0071e3; }
+  @media (prefers-color-scheme: dark) { :root { --fg:#f5f5f7; --bg:#000; --mut:#98989d; --card:#1c1c1e; --acc:#2997ff; } }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:48px 20px 80px; }
+  h1 { font-size:34px; margin:0 0 4px; } h2 { margin-top:40px; font-size:22px; }
+  p.lead { color:var(--mut); margin-top:0; }
+  details { background:var(--card); border-radius:12px; padding:14px 18px; margin:10px 0; }
+  summary { cursor:pointer; font-weight:600; }
+  a { color:var(--acc); } code { background:var(--card); padding:2px 6px; border-radius:6px; font-size:14px; }
+  kbd { border:1px solid var(--mut); border-radius:5px; padding:0 6px; font-size:13px; }
+  .btns a { display:inline-block; margin:6px 8px 0 0; padding:9px 16px; border-radius:999px; background:var(--acc); color:#fff; text-decoration:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>NotchIsland – Hỗ trợ</h1>
+  <p class="lead">Dynamic Island miễn phí cho notch MacBook. Cần trợ giúp? Xem các câu hỏi thường gặp bên dưới.</p>
+  <div class="btns">
+    <a id="dl" href="#">Tải bản mới nhất</a>
+    <a id="issue" href="#">Báo lỗi / góp ý</a>
+  </div>
+
+  <h2>Cài đặt</h2>
+  <details open><summary>Cài NotchIsland như thế nào?</summary>
+    Mở file <code>.dmg</code>, kéo NotchIsland vào <b>Applications</b>, eject ổ đĩa rồi mở app từ Applications.
+    Lần đầu app tự bật "Mở cùng macOS" và xin quyền Trợ năng – bạn chỉ cần bấm "Cấp quyền" một lần.</details>
+  <details><summary>macOS báo “không thể xác minh nhà phát triển” / “đã bị hỏng”</summary>
+    App chưa được Apple notarize nên Gatekeeper cảnh báo. Cách mở: <b>Cài đặt hệ thống → Quyền riêng tư &amp; Bảo mật → kéo xuống → “Vẫn mở”</b>.
+    Nếu báo “đã bị hỏng”, mở Terminal và chạy: <code>xattr -dr com.apple.quarantine /Applications/NotchIsland.app</code>.
+    Các lần cập nhật sau do app tự tải nên không gặp lại cảnh báo này.</details>
+
+  <h2>Quyền</h2>
+  <details><summary>HUD âm lượng / độ sáng của macOS vẫn hiện, không bị thay</summary>
+    Cần quyền <b>Trợ năng</b>: Cài đặt hệ thống → Quyền riêng tư &amp; Bảo mật → Trợ năng → bật NotchIsland. Cấp xong có hiệu lực ngay, không cần mở lại app.
+    Nếu NotchIsland đã bật mà vẫn không chạy: tắt rồi bật lại, hoặc xoá dòng NotchIsland khỏi danh sách và thêm lại.</details>
+  <details><summary>Sau khi cập nhật, app xin lại quyền Trợ năng</summary>
+    Với bản chưa ký Developer ID, macOS coi mỗi phiên bản là một app mới nên có thể quên quyền. Hãy cấp lại theo hướng dẫn ở trên.</details>
+  <details><summary>Chỉnh đèn bàn phím</summary>
+    Giữ <kbd>fn</kbd> + <kbd>1</kbd> để giảm, <kbd>fn</kbd> + <kbd>2</kbd> để tăng. Nếu macOS hỏi quyền <b>Giám sát đầu vào</b> (Input Monitoring) thì hãy cho phép. Máy không có đèn bàn phím thì phím được trả về cho macOS.</details>
+
+  <h2>Tính năng</h2>
+  <details><summary>Không hiện nhạc đang phát</summary>
+    Mở nhạc ở Apple Music / Spotify / trình duyệt (YouTube…) rồi thử lại. Từ macOS 15.4 Apple khoá API nhạc với app thường nên NotchIsland dùng adapter riêng; nếu Apple vá, app tự chuyển sang nguồn dự phòng (Music, Spotify). Trong Cài đặt có thể tắt/bật "Nhạc đang phát".</details>
+  <details><summary>Ảnh bìa bị mờ</summary>
+    Bật "Ảnh bìa độ phân giải cao" trong Cài đặt → Hiển thị (tra iTunes bằng tên bài và nghệ sĩ).</details>
+  <details><summary>Màn hình khoá không hiện thẻ</summary>
+    Tính năng thử nghiệm, dùng API riêng tư của Apple nên có thể không chạy trên mọi bản macOS. Thông báo trên màn hình khoá cần quyền Toàn bộ ổ đĩa.</details>
+  <details><summary>Đảo hiện sai màn hình</summary>
+    Cài đặt → Màn hình → chọn màn hình muốn hiển thị.</details>
+
+  <h2>Cập nhật &amp; gỡ cài đặt</h2>
+  <details><summary>Cập nhật thế nào?</summary>
+    App tự kiểm tra bản mới và hỏi bạn. Cũng có thể bấm biểu tượng trên thanh menu → “Kiểm tra cập nhật…”. Tắt tự kiểm tra trong Cài đặt → Cập nhật.</details>
+  <details><summary>Gỡ cài đặt</summary>
+    Thoát app, tắt "Mở cùng macOS" trong Cài đặt, rồi kéo NotchIsland ra khỏi Applications.</details>
+
+  <h2>Vẫn cần trợ giúp?</h2>
+  <p>Mở <b>Cài đặt → Hỗ trợ → Sao chép thông tin chẩn đoán</b>, rồi <a id="issue2" href="#">tạo một issue</a> và dán thông tin vào.</p>
+</main>
+<script>
+  // Tự suy ra kho từ địa chỉ GitHub Pages (owner.github.io/repo). Mở bằng cách khác thì đặt REPO thủ công.
+  var m = location.hostname.match(/^(.+)\.github\.io$/), parts = location.pathname.split('/').filter(Boolean);
+  var REPO = m && parts[0] ? m[1] + '/' + parts[0] : '';
+  if (REPO) {
+    var base = 'https://github.com/' + REPO;
+    document.getElementById('dl').href = base + '/releases/latest';
+    document.getElementById('issue').href = base + '/issues/new/choose';
+    document.getElementById('issue2').href = base + '/issues/new/choose';
+  }
+</script>
+</body>
+</html>

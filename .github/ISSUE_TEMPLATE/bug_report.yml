@@ -1,0 +1,23 @@
+name: Báo lỗi / Bug report
+description: NotchIsland chạy sai hoặc không như mong đợi
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Chuyện gì đã xảy ra? / What happened?
+      description: Mô tả ngắn, kèm ảnh chụp / video nếu có.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Các bước để tái hiện / Steps to reproduce
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Thông tin chẩn đoán / Diagnostics
+      description: Cài đặt → Hỗ trợ → "Sao chép thông tin chẩn đoán", rồi dán vào đây.
+      render: text
+    validations:
+      required: true

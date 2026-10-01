@@ -15,6 +15,21 @@ final class MediaKeyTap {
 
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
+    /// Tap riêng cho phím tắt bàn phím (fn+1 / fn+2). Tách riêng để nếu macOS đòi thêm quyền Giám sát đầu vào
+    /// mà người dùng chưa cấp thì phần phím media (âm lượng, độ sáng) vẫn chạy bình thường.
+    private var keyTap: CFMachPort?
+    private var keyRunLoopSource: CFRunLoopSource?
+    private var consumedShortcutCodes: Set<Int> = []
+
+    /// Bật / tắt phím tắt (Cài đặt).
+    var shortcutEnabled = true
+
+    /// fn+1 giảm, fn+2 tăng đèn bàn phím (mã phím ANSI '1' = 18, '2' = 19).
+    /// Chọn phím số vì macOS và hầu hết app không gán fn+số cho việc gì (khác F1/F2 mà nhiều app dùng).
+    private static let shortcutMap: [Int: Key] = [
+        18: .keyboardDown,
+        19: .keyboardUp,
+    ]
     /// Phím đã nuốt lúc nhấn xuống → phải nuốt cả lúc nhả, không thì hệ thống nhận lẻ.
     private var consumedKeyCodes: Set<Int> = []
 
@@ -75,15 +90,45 @@ final class MediaKeyTap {
 
         tap = port
         runLoopSource = source
+        startShortcutTap()
         return true
+    }
+
+    private func startShortcutTap() {
+        guard keyTap == nil else { return }
+        let mask: CGEventMask = (1 << CGEventMask(CGEventType.keyDown.rawValue)) | (1 << CGEventMask(CGEventType.keyUp.rawValue))
+        let callback: CGEventTapCallBack = { _, type, event, refcon in
+            guard let refcon else { return Unmanaged.passUnretained(event) }
+            let tap = Unmanaged<MediaKeyTap>.fromOpaque(refcon).takeUnretainedValue()
+            return tap.handleShortcut(type: type, event: event)
+        }
+        guard let port = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .defaultTap,
+            eventsOfInterest: mask,
+            callback: callback,
+            userInfo: Unmanaged.passUnretained(self).toOpaque()
+        ) else { return }
+
+        let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, port, 0)
+        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+        CGEvent.tapEnable(tap: port, enable: true)
+        keyTap = port
+        keyRunLoopSource = source
     }
 
     func stop() {
         if let tap { CGEvent.tapEnable(tap: tap, enable: false) }
         if let runLoopSource { CFRunLoopRemoveSource(CFRunLoopGetMain(), runLoopSource, .commonModes) }
+        if let keyTap { CGEvent.tapEnable(tap: keyTap, enable: false) }
+        if let keyRunLoopSource { CFRunLoopRemoveSource(CFRunLoopGetMain(), keyRunLoopSource, .commonModes) }
         tap = nil
         runLoopSource = nil
+        keyTap = nil
+        keyRunLoopSource = nil
         consumedKeyCodes.removeAll()
+        consumedShortcutCodes.removeAll()
     }
 
     deinit {
@@ -91,6 +136,36 @@ final class MediaKeyTap {
     }
 
     // MARK: - Xử lý sự kiện (chạy trên main run loop)
+
+    /// fn+1 / fn+2 (không kèm ⌘ ⌃ ⌥ ⇧) → đèn bàn phím giảm / tăng. Không chỉnh được (máy không có đèn) thì trả phím về cho hệ thống.
+    fileprivate func handleShortcut(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
+        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+            if let keyTap { CGEvent.tapEnable(tap: keyTap, enable: true) }
+            return Unmanaged.passUnretained(event)
+        }
+        guard type == .keyDown || type == .keyUp else { return Unmanaged.passUnretained(event) }
+
+        let code = Int(event.getIntegerValueField(.keyboardEventKeycode))
+        guard let key = Self.shortcutMap[code] else { return Unmanaged.passUnretained(event) }
+
+        // Nhả phím: nuốt nếu lúc nhấn đã nuốt (fn có thể đã nhả trước).
+        if type == .keyUp {
+            return consumedShortcutCodes.remove(code) != nil ? nil : Unmanaged.passUnretained(event)
+        }
+
+        guard shortcutEnabled else { return Unmanaged.passUnretained(event) }
+
+        let flags = event.flags
+        guard flags.contains(.maskSecondaryFn),
+              flags.intersection([.maskCommand, .maskControl, .maskAlternate, .maskShift]).isEmpty
+        else { return Unmanaged.passUnretained(event) }
+
+        if handler?(key, false) == true {
+            consumedShortcutCodes.insert(code)
+            return nil
+        }
+        return Unmanaged.passUnretained(event)
+    }
 
     fileprivate func handle(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         // Hệ thống tự tắt tap nếu callback chậm → bật lại.
