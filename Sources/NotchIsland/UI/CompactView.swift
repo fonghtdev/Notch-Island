@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Hai "cánh" hai bên notch, phần giữa bỏ trống vì bị camera che.
+/// Hai side bên notch, phần giữa bỏ trống vì bị camera che.
 /// Trái: ảnh bìa nhạc (hoặc biểu tượng hoạt động nếu không có nhạc).
 /// Phải: đồng hồ của hoạt động chính (hẹn giờ, cuộc gọi, ghi âm…) hoặc sóng nhạc.
 struct CompactView: View {

@@ -4,7 +4,7 @@ import ServiceManagement
 /// Gỡ sạch NotchIsland: mục khởi động cùng macOS, cài đặt, cache, file tạm, quyền đã cấp, rồi chuyển app vào Thùng rác.
 @MainActor
 enum Uninstaller {
-    /// AppDelegate gắn vào: hiện lời cảm ơn trên đảo.
+    /// AppDelegate gắn vào: hiện lời cảm ơn trên island.
     static var showFarewell: (() -> Void)?
 
     static func confirmAndRun() {
@@ -55,7 +55,7 @@ enum Uninstaller {
         cleanup.arguments = ["-c", "sleep 1; rm -f '\(plist)'"]
         try? cleanup.run()
 
-        // Đóng cửa sổ Cài đặt, để đảo hiện lời cảm ơn rồi mới tắt hẳn.
+        // Đóng cửa sổ Cài đặt, để island hiện lời cảm ơn rồi mới tắt hẳn.
         NSApp.windows.filter { $0.styleMask.contains(.titled) }.forEach { $0.close() }
         showFarewell?()
         DispatchQueue.main.asyncAfter(deadline: .now() + IslandMetrics.farewellDuration + 0.6) {

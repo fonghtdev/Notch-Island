@@ -23,7 +23,7 @@ final class CaptureMonitor {
     /// Lần cuối còn thấy micro / âm thanh của cuộc gọi: app nhả micro khi bạn tắt mic, nên giữ lại một lúc
     /// thay vì xoá hoạt động và đặt lại đồng hồ.
     private var callLastActive: [String: Date] = [:]
-    /// Cuộc gọi vừa bấm "kết thúc" từ đảo: ẩn ngay, không chờ micro nhả.
+    /// Cuộc gọi vừa bấm "kết thúc" từ island: ẩn ngay, không chờ micro nhả.
     private var endedAt: [String: Date] = [:]
     private var probes: [String: CallControl.Snapshot] = [:]
     private var probing: Set<String> = []
@@ -34,7 +34,7 @@ final class CaptureMonitor {
     private let probeQueue = DispatchQueue(label: "notchisland.callprobe", qos: .utility)
 
     private static let callGrace: TimeInterval = 5
-    /// Camera do chính NotchIsland mở (xem trước trên đảo) không phải "app khác đang dùng camera".
+    /// Camera do chính NotchIsland mở (xem trước trên island) không phải "app khác đang dùng camera".
     static var ownCameraUntil = Date.distantPast
 
     func seed(id: String, startedAt: Date) {

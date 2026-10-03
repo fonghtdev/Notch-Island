@@ -6,7 +6,7 @@ enum HUDStyle: String, CaseIterable, Identifiable {
     case bar
     /// 16 vạch như HUD của macOS.
     case segments
-    /// Vòng tròn ở cánh phải, không thêm hàng bên dưới (đảo thấp hơn).
+    /// Vòng tròn ở cánh phải, không thêm hàng bên dưới (island thấp hơn).
     case ring
 
     var id: String { rawValue }

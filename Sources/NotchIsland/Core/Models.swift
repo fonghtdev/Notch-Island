@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 enum IslandMode: Equatable {
-    /// Đảo trùng khít notch – "ẩn mình".
+    /// island trùng khít notch – "ẩn mình".
     case collapsed
     /// Nở hai cánh sang ngang (đang phát nhạc, vừa cắm sạc…).
     case compact

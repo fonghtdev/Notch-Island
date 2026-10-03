@@ -4,7 +4,7 @@ import SwiftUI
 enum IslandMetrics {
     // Tỉ lệ chuẩn, cố định vĩnh viễn (không có tuỳ chọn trong Cài đặt):
     // thẻ mở rộng 440×172 (~2,56:1), bo góc thu gọn 10 khớp notch thật, bo góc mở rộng 26.
-    /// Bán kính "tai" cong ngược ở hai góc trên, giúp đảo liền mạch với viền màn hình.
+    /// Bán kính "tai" cong ngược ở hai góc trên, giúp island liền mạch với viền màn hình.
     static let earRadius: CGFloat = 6
     static let collapsedBottomRadius: CGFloat = 10
     static let expandedBottomRadius: CGFloat = 26
@@ -22,7 +22,7 @@ enum IslandMetrics {
     static let cameraSize = CGSize(width: 440, height: 240)
 
     /// Cửa sổ trong suốt luôn giữ cố định kích thước tối đa (+ chỗ cho bóng đổ),
-    /// chỉ phần hình đảo thay đổi → không phải resize NSWindow khi animate.
+    /// chỉ phần hình island thay đổi → không phải resize NSWindow khi animate.
     static let panelSize = CGSize(width: 580, height: 260)
 
     /// Notch giả cho màn hình không có tai thỏ (màn rời, MacBook đời cũ).

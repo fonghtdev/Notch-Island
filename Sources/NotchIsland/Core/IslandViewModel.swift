@@ -91,7 +91,7 @@ final class IslandViewModel: ObservableObject {
         case media(withActivity: Bool)
         case activities(Int)
         case idle
-        /// Màn hình chính (pin, hẹn giờ, camera) mở từ nút ☰ khi đang có nhạc; cùng cỡ thẻ nhạc để đảo không co lại dưới con trỏ.
+        /// Màn hình chính (pin, hẹn giờ, camera) mở từ nút ☰ khi đang có nhạc; cùng cỡ thẻ nhạc để island không co lại dưới con trỏ.
         case home
         /// Xem trước camera ngay trên đảo.
         case camera

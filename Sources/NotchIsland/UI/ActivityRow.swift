@@ -103,7 +103,7 @@ struct ActivityRow: View {
     }
 }
 
-/// Nội dung nhỏ trên cánh đảo: đồng hồ của hoạt động chính.
+/// Nội dung nhỏ trên cánh island: đồng hồ của hoạt động chính.
 struct ActivityWing: View {
     let activity: LiveActivity
 

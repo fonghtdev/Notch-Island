@@ -20,7 +20,7 @@ final class ActivityCenter {
     private var phoneActivities: [LiveActivity] = []
     private var captureEnabled = false
 
-    /// Bản ghi âm đã bị bấm tạm dừng từ đảo. Khi tạm dừng app ghi âm có thể nhả micro (hoạt động biến mất khỏi
+    /// Bản ghi âm đã bị bấm tạm dừng từ island. Khi tạm dừng app ghi âm có thể nhả micro (hoạt động biến mất khỏi
     /// CoreAudio), nên giữ lại một hàng "đã tạm dừng" để còn bấm tiếp tục được.
     private struct PausedRecording {
         var activity: LiveActivity

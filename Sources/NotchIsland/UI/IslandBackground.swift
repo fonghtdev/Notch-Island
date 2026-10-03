@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Nền của đảo theo `IslandSurface`: đen đặc, kính mờ, hoặc Liquid Glass.
+/// Nền của island theo `IslandSurface`: đen đặc, kính mờ, hoặc Liquid Glass.
 /// Kích thước do nơi dùng quyết định (`.frame`), view này chỉ lấp đầy khung đó theo `shape`.
 struct IslandBackground<S: Shape>: View {
     let shape: S

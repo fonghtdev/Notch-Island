@@ -1,6 +1,6 @@
 import AppKit
 
-/// Mở lại nguồn đang phát khi bấm vào đảo.
+/// Mở lại nguồn đang phát khi bấm vào island.
 /// - Trình duyệt (Chrome, Brave, Edge, Arc, Safari…): tìm đúng tab (theo tiêu đề bài, rồi theo tên miền
 ///   YouTube/SoundCloud…), chuyển sang tab đó và đưa cửa sổ lên trước. Cần quyền Automation (hỏi lần đầu).
 /// - App thường (Spotify, Music, Discord…): đưa app lên trước.

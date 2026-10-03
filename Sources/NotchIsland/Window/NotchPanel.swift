@@ -19,11 +19,11 @@ final class NotchPanel: NSPanel {
         hidesOnDeactivate = false
         isReleasedWhenClosed = false
         acceptsMouseMovedEvents = true
-        // Mặc định cho click xuyên qua; chỉ bắt chuột khi con trỏ nằm trên đảo.
+        // Mặc định cho click xuyên qua; chỉ bắt chuột khi con trỏ nằm trên island.
         ignoresMouseEvents = true
 
         // Đặt tầng CUỐI CÙNG và KHÔNG bật `isFloatingPanel`: thuộc tính đó tự ghi đè `level`
-        // về tầng "floating" (thấp hơn thanh menu) → chữ menu (Help, Window…) vẽ đè lên đảo.
+        // về tầng "floating" (thấp hơn thanh menu) → chữ menu (Help, Window…) vẽ đè lên island.
         // mainMenu + 3: nằm trên chữ thanh menu nhưng vẫn dưới menu thả xuống / popup.
         level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 3)
     }
@@ -32,7 +32,7 @@ final class NotchPanel: NSPanel {
     override var canBecomeMain: Bool { false }
 
     /// Mặc định AppKit đẩy cửa sổ xuống dưới thanh menu. Trả nguyên frame để
-    /// đảo được đặt sát mép trên màn hình, đè lên vùng notch/camera.
+    /// Island được đặt sát mép trên màn hình, đè lên vùng notch/camera.
     override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
         frameRect
     }

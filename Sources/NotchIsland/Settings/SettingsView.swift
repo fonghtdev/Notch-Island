@@ -5,7 +5,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var settings: AppSettings
-    /// Hiện thử một HUD thật trên đảo.
+    /// Hiện thử một HUD thật trên island.
     let onPreviewOnIsland: (HUDEvent) -> Void
     @ObservedObject var updater: UpdateService
     @State private var feedback = ""
@@ -58,15 +58,15 @@ struct SettingsView: View {
             surfaceSection
 
             Section {
-                Toggle("Rê chuột vào để mở (tắt: bấm vào đảo)", isOn: $settings.hoverToExpand)
+                Toggle("Rê chuột vào để mở (tắt: bấm vào island)", isOn: $settings.hoverToExpand)
             } header: {
                 Text("Hành vi")
             } footer: {
-                Text("Kích thước và bo góc đảo được cố định theo tỉ lệ chuẩn để luôn khớp với notch.")
+                Text("Kích thước và bo góc island được cố định theo tỉ lệ chuẩn để luôn khớp với notch.")
             }
 
             Section("Màn hình") {
-                Picker("Hiển thị đảo trên", selection: $settings.displayID) {
+                Picker("Hiển thị island trên", selection: $settings.displayID) {
                     Text("Tự động (ưu tiên màn hình có notch)").tag(0)
                     ForEach(screenChoices) { option in
                         Text(option.title).tag(option.id)
@@ -181,11 +181,11 @@ struct SettingsView: View {
 
     private var guideSection: some View {
         Section {
-            guideRow("capsule.fill", "Đảo nằm ngay notch", "Rê chuột vào notch (hoặc bấm, tuỳ mục Hành vi) để mở rộng: nhạc, hẹn giờ, hoạt động.")
+            guideRow("capsule.fill", "island nằm ngay notch", "Rê chuột vào notch (hoặc bấm, tuỳ mục Hành vi) để mở rộng: nhạc, hẹn giờ, hoạt động.")
             guideRow("menubar.rectangle", "Biểu tượng trên thanh menu", "Bấm biểu tượng viên thuốc để đặt hẹn giờ, bấm giờ, mở Cài đặt hoặc thoát.")
-            guideRow("music.note", "Nhạc", "Phát nhạc ở Music, Spotify hoặc trình duyệt – bài hát tự hiện trên đảo, bấm thanh tiến trình để tua.")
-            guideRow("speaker.wave.2.fill", "Âm lượng, độ sáng", "Dùng phím như bình thường; HUD hiện trên đảo. Cần cấp quyền Trợ năng (xem mục Phím điều khiển).")
-            guideRow("headphones", "Tai nghe, sạc", "Kết nối tai nghe Bluetooth hoặc cắm sạc, đảo tự báo.")
+            guideRow("music.note", "Nhạc", "Phát nhạc ở Music, Spotify hoặc trình duyệt – bài hát tự hiện trên island, bấm thanh tiến trình để tua.")
+            guideRow("speaker.wave.2.fill", "Âm lượng, độ sáng", "Dùng phím như bình thường; HUD hiện trên island. Cần cấp quyền Trợ năng (xem mục Phím điều khiển).")
+            guideRow("headphones", "Tai nghe, sạc", "Kết nối tai nghe Bluetooth hoặc cắm sạc, island tự báo.")
         } header: {
             Text("Bắt đầu nhanh")
         } footer: {
@@ -241,7 +241,7 @@ struct SettingsView: View {
                 .font(.subheadline.weight(.semibold))
             shortcutRow(keys: ["fn", "1"], action: "Giảm đèn bàn phím")
             shortcutRow(keys: ["fn", "2"], action: "Tăng đèn bàn phím")
-            Text("Giữ phím để tăng / giảm liên tục; HUD hiện trên đảo. Máy không có đèn bàn phím thì phím được trả về cho macOS. Cũng chỉnh được bằng thanh trượt trong Trung tâm điều khiển.")
+            Text("Giữ phím để tăng / giảm liên tục; HUD hiện trên island. Máy không có đèn bàn phím thì phím được trả về cho macOS. Cũng chỉnh được bằng thanh trượt trong Trung tâm điều khiển.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -267,7 +267,7 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Nền đảo
+    // MARK: - Nền island
 
     private var surfaceSection: some View {
         Section {
@@ -286,7 +286,7 @@ struct SettingsView: View {
                        display: "\(Int((settings.glassTintStrength * 100).rounded()))%")
             }
         } header: {
-            Text("Nền đảo")
+            Text("Nền island")
         } footer: {
             Text(surfaceFooter)
         }
@@ -296,7 +296,7 @@ struct SettingsView: View {
         if settings.islandStyle == .glass && !IslandSurface.supportsLiquidGlass {
             return "Liquid Glass cần macOS 26+ và build bằng Xcode 26 (Swift 6.2+). Bản hiện tại chưa đáp ứng nên đang dùng kính mờ thay thế."
         }
-        return "Trên máy có notch thật, đảo vẫn đen khi thu gọn để liền với notch; kính chỉ hiện khi đảo nở ra. Tăng độ đậm màu phủ nếu chữ khó đọc trên hình nền sáng."
+        return "Trên máy có notch thật, island vẫn đen khi thu gọn để liền với notch; kính chỉ hiện khi island nở ra. Tăng độ đậm màu phủ nếu chữ khó đọc trên hình nền sáng."
     }
 
     // MARK: - Giao diện HUD
@@ -333,7 +333,7 @@ struct SettingsView: View {
             ColorPicker("Màu đèn bàn phím", selection: $settings.keyboardColor, supportsOpacity: false)
 
             HStack {
-                Button("Hiện thử trên đảo") {
+                Button("Hiện thử trên island") {
                     onPreviewOnIsland(HUDEvent(kind: previewKind, value: previewValue))
                 }
                 Spacer()
@@ -349,7 +349,7 @@ struct SettingsView: View {
         }
     }
 
-    /// Bản xem trước: vẽ đúng HUD thật trong khung đảo đen có bo góc theo cài đặt.
+    /// Bản xem trước: vẽ đúng HUD thật trong khung island đen có bo góc theo cài đặt.
     private var preview: some View {
         let notch = CGSize(width: 150, height: 32)
         let appearance = settings.hudAppearance

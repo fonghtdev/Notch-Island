@@ -42,7 +42,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         setupStatusItem()
         let firstRun = !UserDefaults.standard.bool(forKey: "didOnboard.v1")
         if firstRun {
-            // Lần đầu: lời chào trên đảo trước, xong mới hỏi quyền và mở Cài đặt (đầu trang có "Bắt đầu nhanh").
+            // Lần đầu: lời chào trên island trước, xong mới hỏi quyền và mở Cài đặt (đầu trang có "Bắt đầu nhanh").
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { viewModel.show(.welcome) }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.9 + IslandMetrics.welcomeDuration) { [weak self] in
                 Onboarding.runIfNeeded()

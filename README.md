@@ -126,7 +126,7 @@ GitHub Actions (`.github/workflows/release.yml`) build bản **universal** (Appl
 
 ## Quyền riêng tư
 
-Không thu thập dữ liệu, không có máy chủ riêng. Các kết nối ra ngoài duy nhất: hỏi GitHub Releases để kiểm tra bản mới (chỉ gửi số phiên bản) và, nếu bật, tra ảnh bìa trên iTunes Search (chỉ gửi tên bài + nghệ sĩ). Báo lỗi chỉ mở form GitHub điền sẵn nội dung bạn viết cùng thông tin chẩn đoán (phiên bản, macOS, chip, trạng thái quyền). Camera chỉ chạy khi bạn mở khung xem trước và không lưu hình.
+KHÔNG THU THẬP DỮ LIỆU NGƯỜI DÙNG, KHÔNG CÓ MÁY CHỦ RIÊNG. Các kết nối ra ngoài duy nhất: hỏi GitHub Releases để kiểm tra bản mới (chỉ gửi số phiên bản) và, nếu bật, tra ảnh bìa trên iTunes Search (chỉ gửi tên bài + nghệ sĩ). Báo lỗi chỉ mở form GitHub điền sẵn nội dung bạn viết cùng thông tin chẩn đoán (phiên bản, macOS, chip, trạng thái quyền). Camera chỉ chạy khi bạn mở khung xem trước và không lưu hình.
 
 ## Trạng thái & giới hạn
 

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Hoạt động đang diễn ra ở ngoài app (hẹn giờ, cuộc gọi, ghi âm…).
-/// Hiện trên đảo suốt thời gian còn diễn ra: hai cánh nhỏ khi thu gọn, một hàng đầy đủ khi mở rộng.
+/// Hiện trên island suốt thời gian còn diễn ra: hai cánh nhỏ khi thu gọn, một hàng đầy đủ khi mở rộng.
 struct LiveActivity: Identifiable, Equatable {
     enum Kind: Int, Comparable {
         /// Thứ tự = độ ưu tiên hiển thị (nhỏ hơn = quan trọng hơn).

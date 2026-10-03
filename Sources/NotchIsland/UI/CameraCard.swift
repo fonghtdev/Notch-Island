@@ -1,8 +1,8 @@
 import AVFoundation
 import SwiftUI
 
-/// Xem trước camera ngay trên đảo (như Photo Booth, lật gương). Chỉ chạy khi thẻ này đang hiện:
-/// rời thẻ / đảo thu gọn là tắt camera.
+/// Xem trước camera ngay trên island (như Photo Booth, lật gương). Chỉ chạy khi thẻ này đang hiện:
+/// rời thẻ / island thu gọn là tắt camera.
 struct CameraCard: View {
     private enum Status { case checking, ready, denied, unavailable, needsBundle }
     @State private var status = Status.checking
@@ -83,7 +83,6 @@ final class CameraPreviewView: NSView {
             session.commitConfiguration()
             session.startRunning()
             DispatchQueue.main.async { [weak self] in
-                // Lật gương như soi gương / Photo Booth.
                 guard let connection = self?.preview.connection, connection.isVideoMirroringSupported else { return }
                 connection.automaticallyAdjustsVideoMirroring = false
                 connection.isVideoMirrored = true

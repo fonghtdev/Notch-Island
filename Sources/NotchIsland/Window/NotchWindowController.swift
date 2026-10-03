@@ -2,7 +2,7 @@ import AppKit
 import Combine
 import SwiftUI
 
-/// Định vị panel, theo dõi chuột để mở/thu đảo và bật/tắt click-through.
+/// Định vị panel, theo dõi chuột để mở/thu island và bật/tắt click-through.
 @MainActor
 final class NotchWindowController: NSObject {
     private let viewModel: IslandViewModel
@@ -62,7 +62,7 @@ final class NotchWindowController: NSObject {
         panel.setFrame(NSRect(origin: origin, size: size), display: true)
     }
 
-    /// Hình chữ nhật của đảo theo toạ độ màn hình (gốc ở dưới-trái).
+    /// Hình chữ nhật của island theo toạ độ màn hình (gốc ở dưới-trái).
     private func islandRect() -> CGRect {
         let screen = viewModel.geometry.screenFrame
         let size = viewModel.contentSize
@@ -107,8 +107,8 @@ final class NotchWindowController: NSObject {
     }
 
     private func evaluateMouse() {
-        // Đang giữ chuột (vd. kéo thanh tiến trình) khi đảo đã mở: giữ nguyên trạng thái,
-        // kẻo kéo lệch ra ngoài là đảo tự thu lại và cướp mất thao tác.
+        // Đang giữ chuột (vd. kéo thanh tiến trình) khi island đã mở: giữ nguyên trạng thái,
+        // kẻo kéo lệch ra ngoài là island tự thu lại và cướp mất thao tác.
         if viewModel.isExpanded, NSEvent.pressedMouseButtons != 0 { return }
 
         let inside = islandRect().contains(NSEvent.mouseLocation)

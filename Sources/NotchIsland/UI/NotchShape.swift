@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Hình đảo: đỉnh phẳng áp sát mép màn hình, hai "tai" cong ngược ở góc trên
+/// Hình island: đỉnh phẳng áp sát mép màn hình, hai "tai" cong ngược ở góc trên
 /// và hai góc bo tròn phía dưới. Cả hai bán kính đều animate được.
 ///
 ///   ╭─────────────────────╮   ← tai cong ngược (earRadius)

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Giao diện khi rê chuột vào đảo: nhạc (hoặc hoạt động / trạng thái rảnh), không có đồng hồ hay nút phụ.
+/// Giao diện khi rê chuột vào island: nhạc (hoặc hoạt động / trạng thái rảnh), không có đồng hồ hay nút phụ.
 struct ExpandedView: View {
     @ObservedObject var viewModel: IslandViewModel
 

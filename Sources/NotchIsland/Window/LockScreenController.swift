@@ -22,7 +22,7 @@ final class LockScreenController {
         panel = NotchPanel(contentRect: NSRect(x: 0, y: 0, width: Self.width, height: 200))
         host = IslandHostingView(rootView: LockScreenView(viewModel: viewModel))
         panel.contentView = host
-        // Khác đảo chính: thẻ này phải bấm được (nút phát/dừng…) và không được bắt chuột khi đang ẩn.
+        // Khác island chính: thẻ này phải bấm được (nút phát/dừng…) và không được bắt chuột khi đang ẩn.
         panel.ignoresMouseEvents = false
 
         viewModel.objectWillChange

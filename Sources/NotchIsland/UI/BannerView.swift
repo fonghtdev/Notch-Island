@@ -310,8 +310,6 @@ struct FarewellBanner: View {
 
 // MARK: - Lời chào lần chạy đầu
 
-/// Chữ viết tay "hello" hiện dần từ trái sang phải (kiểu màn hình khởi động iPhone), rồi "xin chào",
-/// cuối cùng là lời nhắc mở Cài đặt từ biểu tượng trên thanh menu.
 struct WelcomeBanner: View {
     private static let greetings = ["hello", "xin chào"]
     @State private var index = 0

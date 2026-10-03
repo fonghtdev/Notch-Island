@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Kiểu nền của đảo.
+/// Kiểu nền của island.
 enum IslandBackgroundStyle: String, CaseIterable, Identifiable {
     /// Đen đặc – khớp hoàn toàn với notch.
     case solid
@@ -20,7 +20,7 @@ enum IslandBackgroundStyle: String, CaseIterable, Identifiable {
     }
 }
 
-/// Thông số nền đảo – dữ liệu thuần, dựng từ `AppSettings`.
+/// Thông số nền island – dữ liệu thuần, dựng từ `AppSettings`.
 struct IslandSurface: Equatable {
     var style: IslandBackgroundStyle = .solid
     /// Liquid Glass dạng "clear" (trong suốt hơn `regular`).
