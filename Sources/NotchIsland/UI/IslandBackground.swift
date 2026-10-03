@@ -23,7 +23,7 @@ struct IslandBackground<S: Shape>: View {
         shape
             .fill(.ultraThinMaterial)
             .overlay(shape.fill(surface.tint.opacity(surface.tintStrength)))
-            .overlay(edgeHighlight)
+            .overlay(GlassRim(shape: shape))
     }
 
     // MARK: - Liquid Glass (macOS 26+, build bằng Xcode 26 / Swift 6.2+)
@@ -34,7 +34,7 @@ struct IslandBackground<S: Shape>: View {
         if #available(macOS 26.0, *) {
             Color.clear
                 .glassEffect(glassStyle, in: shape)
-                .overlay(edgeHighlight)
+                .overlay(GlassRim(shape: shape))
         } else {
             frosted
         }
@@ -50,16 +50,4 @@ struct IslandBackground<S: Shape>: View {
         return base.tint(surface.tint.opacity(surface.tintStrength))
     }
     #endif
-
-    /// Viền sáng mảnh ở hai bên và đáy (đỉnh dính mép màn hình nên để trong suốt) – tạo cảm giác "khối kính".
-    private var edgeHighlight: some View {
-        shape.stroke(
-            LinearGradient(
-                colors: [.white.opacity(0), .white.opacity(0.14), .white.opacity(0.4)],
-                startPoint: .top,
-                endPoint: .bottom
-            ),
-            lineWidth: 1
-        )
-    }
 }

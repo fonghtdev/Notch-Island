@@ -291,15 +291,17 @@ struct IdleCard: View {
                     .reveal(delay: 0.03)
             }
 
-            HStack(spacing: 6) {
-                ForEach(Array([5, 10, 25].enumerated()), id: \.element) { index, minutes in
-                    TimerChip(minutes: minutes, action: onStartTimer)
-                        .reveal(delay: 0.05 + Double(index) * 0.04)
+            GlassGroup(spacing: 8) {
+                HStack(spacing: 6) {
+                    ForEach(Array([5, 10, 25].enumerated()), id: \.element) { index, minutes in
+                        TimerChip(minutes: minutes, action: onStartTimer)
+                            .reveal(delay: 0.05 + Double(index) * 0.04)
+                    }
+                    StopwatchChip(action: onStartStopwatch)
+                        .reveal(delay: 0.19)
+                    CameraChip(action: onCamera)
+                        .reveal(delay: 0.23)
                 }
-                StopwatchChip(action: onStartStopwatch)
-                    .reveal(delay: 0.19)
-                CameraChip(action: onCamera)
-                    .reveal(delay: 0.23)
             }
         }
         .frame(maxWidth: .infinity)
@@ -336,7 +338,7 @@ struct TimerChip: View {
                 .frame(minWidth: 28)
                 .padding(.vertical, 5)
                 .padding(.horizontal, 4)
-                .background(Capsule().fill(.white.opacity(isHovering ? 0.22 : 0.1)))
+                .glassPill(Capsule(), fallbackOpacity: 0.1, hovering: isHovering)
                 .scaleEffect(isHovering ? 1.06 : 1)
         }
         .buttonStyle(.plain)
@@ -357,7 +359,7 @@ struct CameraChip: View {
                 .frame(minWidth: 28)
                 .padding(.vertical, 5)
                 .padding(.horizontal, 4)
-                .background(Capsule().fill(.white.opacity(isHovering ? 0.22 : 0.1)))
+                .glassPill(Capsule(), fallbackOpacity: 0.1, hovering: isHovering)
                 .scaleEffect(isHovering ? 1.06 : 1)
         }
         .buttonStyle(.plain)
@@ -376,7 +378,7 @@ struct StopwatchChip: View {
             Image(systemName: "stopwatch")
                 .font(.system(size: 12, weight: .semibold))
                 .frame(width: 28, height: 24)
-                .background(Capsule().fill(.white.opacity(isHovering ? 0.22 : 0.1)))
+                .glassPill(Capsule(), fallbackOpacity: 0.1, hovering: isHovering)
                 .scaleEffect(isHovering ? 1.06 : 1)
         }
         .buttonStyle(.plain)

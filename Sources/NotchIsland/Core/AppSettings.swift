@@ -90,7 +90,14 @@ final class AppSettings: ObservableObject {
     // MARK: Nền đảo
 
     @Published var islandStyle: IslandBackgroundStyle {
-        didSet { defaults.set(islandStyle.rawValue, forKey: Key.islandStyle) }
+        didSet {
+            defaults.set(islandStyle.rawValue, forKey: Key.islandStyle)
+            // Vừa chọn Liquid Glass: đặt sẵn giá trị trong suốt như kính của Apple (người dùng vẫn chỉnh lại được).
+            if islandStyle == .glass, oldValue != .glass {
+                glassClear = true
+                glassTintStrength = 0
+            }
+        }
     }
     @Published var glassClear: Bool {
         didSet { defaults.set(glassClear, forKey: Key.glassClear) }
@@ -167,7 +174,7 @@ final class AppSettings: ObservableObject {
             Key.islandStyle: IslandBackgroundStyle.solid.rawValue,
             Key.glassClear: false,
             Key.glassTint: "#000000",
-            Key.glassTintStrength: 0.3,
+            Key.glassTintStrength: 0.08,
         ])
 
         func clamp(_ value: Double, _ range: ClosedRange<Double>) -> Double {

@@ -6,6 +6,8 @@ enum IslandMetrics {
     // thẻ mở rộng 440×172 (~2,56:1), bo góc thu gọn 10 khớp notch thật, bo góc mở rộng 26.
     /// Bán kính "tai" cong ngược ở hai góc trên, giúp island liền mạch với viền màn hình.
     static let earRadius: CGFloat = 6
+    /// Thẻ mở rộng: tai cong lớn hơn cho mép kính mềm, liền với mép màn hình.
+    static let expandedEarRadius: CGFloat = 18
     static let collapsedBottomRadius: CGFloat = 10
     static let expandedBottomRadius: CGFloat = 26
 

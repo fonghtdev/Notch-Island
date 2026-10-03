@@ -174,6 +174,10 @@ final class IslandViewModel: ObservableObject {
         }
     }
 
+    var earRadius: CGFloat {
+        mode == .expanded ? IslandMetrics.expandedEarRadius : IslandMetrics.earRadius
+    }
+
     var bottomRadius: CGFloat {
         switch mode {
         case .expanded: return IslandMetrics.expandedBottomRadius

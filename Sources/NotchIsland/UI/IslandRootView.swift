@@ -6,7 +6,7 @@ struct IslandRootView: View {
 
     var body: some View {
         let size = viewModel.contentSize
-        let ear = IslandMetrics.earRadius
+        let ear = viewModel.earRadius
         let isExpanded = viewModel.mode == .expanded
 
         ZStack(alignment: .top) {
@@ -26,6 +26,7 @@ struct IslandRootView: View {
         .animation(IslandMetrics.spring, value: viewModel.expandedLayout)
         .animation(IslandMetrics.spring, value: viewModel.geometry)
         .environment(\.colorScheme, .dark)
+        .environment(\.islandGlass, viewModel.settings.islandStyle == .glass && IslandSurface.supportsLiquidGlass)
     }
 
     /// Nội dung các chế độ nhỏ: hiện nhanh, tắt nhanh – kích thước island mới là thứ chuyển động.

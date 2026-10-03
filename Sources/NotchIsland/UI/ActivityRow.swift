@@ -56,7 +56,7 @@ struct ActivityRow: View {
                 controlButtons
             }
             .frame(height: 30)
-            .background(Capsule().fill(.white.opacity(0.08)))
+            .glassPill(Capsule(), fallbackOpacity: 0.08, interactive: false)
             .animation(.easeInOut(duration: 0.2), value: activity.isPaused)
         }
         .frame(height: IslandMetrics.activityRowHeight)

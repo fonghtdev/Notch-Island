@@ -27,7 +27,7 @@ struct IslandSurface: Equatable {
     var isClear = false
     /// Màu phủ lên kính để chữ trắng vẫn đọc được trên hình nền sáng.
     var tint: Color = .black
-    var tintStrength: Double = 0.3
+    var tintStrength: Double = 0.08
 
     /// Liquid Glass thật chỉ có khi VỪA build bằng Swift 6.2+ (Xcode 26) VỪA chạy trên macOS 26+.
     static var supportsLiquidGlass: Bool {

@@ -73,7 +73,7 @@ final class CameraPreviewView: NSView {
         layer = preview
         wantsLayer = true
 
-        queue.async { [session] in
+        queue.async { [session, weak self] in
             session.beginConfiguration()
             session.sessionPreset = .medium
             if let device = AVCaptureDevice.default(for: .video),
@@ -82,7 +82,7 @@ final class CameraPreviewView: NSView {
             }
             session.commitConfiguration()
             session.startRunning()
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.async {
                 guard let connection = self?.preview.connection, connection.isVideoMirroringSupported else { return }
                 connection.automaticallyAdjustsVideoMirroring = false
                 connection.isVideoMirrored = true
