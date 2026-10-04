@@ -11,8 +11,8 @@ struct ExpandedView: View {
             topRow
 
             content
-                .padding(.horizontal, 20)
-                .padding(.bottom, 14)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 18)
                 .frame(maxHeight: .infinity)
         }
         .foregroundStyle(.white)

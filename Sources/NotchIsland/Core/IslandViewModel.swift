@@ -166,7 +166,7 @@ final class IslandViewModel: ObservableObject {
                 let body = n * IslandMetrics.activityRowHeight + (n - 1) * IslandMetrics.activityRowSpacing
                 return CGSize(
                     width: max(IslandMetrics.activityWidth, minWidth),
-                    height: notch.height + 10 + body + 14
+                    height: notch.height + 10 + body + 18
                 )
             case .home, .stats:
                 return CGSize(width: max(IslandMetrics.expandedSize.width, minWidth), height: IslandMetrics.mediaOnlyHeight)
