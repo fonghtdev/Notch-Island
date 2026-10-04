@@ -3,8 +3,12 @@ import SwiftUI
 /// Gốc của UI: vẽ hình island và chọn nội dung theo `IslandMode`.
 struct IslandRootView: View {
     @ObservedObject var viewModel: IslandViewModel
+    /// "Giảm chuyển động" của macOS: island đổi cỡ bằng chuyển mờ ngắn thay cho lò xo nảy.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
+        let open = reduceMotion ? Animation.easeInOut(duration: 0.15) : IslandMetrics.spring
+        let close = reduceMotion ? Animation.easeInOut(duration: 0.15) : IslandMetrics.closeSpring
         let size = viewModel.contentSize
         let ear = viewModel.earRadius
         let isExpanded = viewModel.mode == .expanded
@@ -21,10 +25,10 @@ struct IslandRootView: View {
                 .clipped()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .animation(viewModel.mode == .expanded ? IslandMetrics.spring : IslandMetrics.closeSpring, value: viewModel.mode)
+        .animation(viewModel.mode == .expanded ? open : close, value: viewModel.mode)
         // Đang mở mà nội dung đổi (nhạc bắt đầu / hết, thêm hẹn giờ…) → island co giãn mượt theo.
-        .animation(IslandMetrics.spring, value: viewModel.expandedLayout)
-        .animation(IslandMetrics.spring, value: viewModel.geometry)
+        .animation(open, value: viewModel.expandedLayout)
+        .animation(open, value: viewModel.geometry)
         .environment(\.colorScheme, .dark)
         .environment(\.islandGlass, viewModel.settings.islandStyle == .glass && IslandSurface.supportsLiquidGlass)
     }

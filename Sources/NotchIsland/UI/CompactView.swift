@@ -89,9 +89,10 @@ struct EqualizerBars: View {
     let color: Color
     var barCount = 4
     var maxHeight: CGFloat = 14
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isAnimating)) { context in
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isAnimating || reduceMotion)) { context in
             let time = context.date.timeIntervalSinceReferenceDate
             HStack(alignment: .center, spacing: 2) {
                 ForEach(0..<barCount, id: \.self) { index in
@@ -106,6 +107,8 @@ struct EqualizerBars: View {
 
     private func level(index: Int, time: TimeInterval) -> CGFloat {
         guard isAnimating else { return 0.3 }
+        // Giảm chuyển động: giữ dáng thanh sóng cố định (so le) thay vì nhảy liên tục.
+        if reduceMotion { return [0.55, 0.95, 0.7, 0.85][index % 4] }
         let phase = time * (3.0 + Double(index) * 0.9) + Double(index) * 1.3
         return CGFloat(0.3 + 0.7 * abs(sin(phase)))
     }

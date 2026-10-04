@@ -40,11 +40,9 @@ struct ExpandedView: View {
     private var pageButton: some View {
         switch viewModel.expandedLayout {
         case .media:
-            ControlButton(symbol: "line.3.horizontal", size: 12, diameter: 24) { viewModel.showHome() }
-                .help("Pin, hẹn giờ, camera")
+            ControlButton(symbol: "line.3.horizontal", label: "Mở màn hình chính", size: 12, diameter: 24) { viewModel.showHome() }
         case .home, .camera, .stats:
-            ControlButton(symbol: "chevron.left", size: 12, diameter: 24) { viewModel.goBack() }
-                .help("Quay lại")
+            ControlButton(symbol: "chevron.left", label: "Quay lại", size: 12, diameter: 24) { viewModel.goBack() }
         default:
             EmptyView()
         }
@@ -154,11 +152,11 @@ struct NowPlayingCard: View {
 
     private var controls: some View {
         HStack(spacing: 6) {
-            ControlButton(symbol: "backward.fill", size: 14) { onCommand(.previous) }
-            ControlButton(symbol: info.isPlaying ? "pause.fill" : "play.fill", size: compact ? 16 : 20) {
+            ControlButton(symbol: "backward.fill", label: "Bài trước", size: 14) { onCommand(.previous) }
+            ControlButton(symbol: info.isPlaying ? "pause.fill" : "play.fill", label: info.isPlaying ? "Tạm dừng" : "Phát", size: compact ? 16 : 20) {
                 onCommand(.playPause)
             }
-            ControlButton(symbol: "forward.fill", size: 14) { onCommand(.next) }
+            ControlButton(symbol: "forward.fill", label: "Bài tiếp", size: 14) { onCommand(.next) }
         }
     }
 }
@@ -251,6 +249,8 @@ struct ProgressRow: View {
 
 struct ControlButton: View {
     let symbol: String
+    /// Tên hành động: VoiceOver đọc và hiện thành tooltip. Bắt buộc vì nút chỉ có biểu tượng.
+    let label: String
     let size: CGFloat
     var diameter: CGFloat = 30
     var tint: Color? = nil
@@ -269,6 +269,8 @@ struct ControlButton: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .help(label)
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.15), value: isHovering)
         .animation(.easeInOut(duration: 0.2), value: symbol)
@@ -351,6 +353,7 @@ struct TimerChip: View {
         .buttonStyle(.plain)
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.15), value: isHovering)
+        .accessibilityLabel("Hẹn giờ \(minutes) phút")
         .help("Hẹn giờ \(minutes) phút")
     }
 }
@@ -372,6 +375,7 @@ struct StatsChip: View {
         .buttonStyle(.plain)
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.15), value: isHovering)
+        .accessibilityLabel("Thống kê máy")
         .help("Thống kê máy")
     }
 }
@@ -393,6 +397,7 @@ struct CameraChip: View {
         .buttonStyle(.plain)
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.15), value: isHovering)
+        .accessibilityLabel("Xem camera")
         .help("Xem camera")
     }
 }
@@ -412,6 +417,7 @@ struct StopwatchChip: View {
         .buttonStyle(.plain)
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.15), value: isHovering)
+        .accessibilityLabel("Bấm giờ")
         .help("Bấm giờ")
     }
 }

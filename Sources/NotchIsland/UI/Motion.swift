@@ -6,6 +6,7 @@ import SwiftUI
 struct Reveal: ViewModifier {
     let delay: Double
     @State private var shown = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content
@@ -13,6 +14,8 @@ struct Reveal: ViewModifier {
             .offset(y: shown ? 0 : 6)
             .scaleEffect(shown ? 1 : 0.96, anchor: .top)
             .onAppear {
+                // Giảm chuyển động: hiện ngay, không trượt / phóng / trễ.
+                if reduceMotion { shown = true; return }
                 withAnimation(.spring(response: 0.38, dampingFraction: 0.86).delay(delay)) { shown = true }
             }
     }
@@ -51,13 +54,15 @@ struct PulseRing: View {
     let tint: Color
     let isActive: Bool
     @State private var phase = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Circle()
             .stroke(tint.opacity(0.5), lineWidth: 1.2)
             .scaleEffect(phase ? 1.45 : 1)
-            .opacity(isActive ? (phase ? 0 : 0.7) : 0)
+            .opacity(isActive && !reduceMotion ? (phase ? 0 : 0.7) : 0)
             .onAppear {
+                guard !reduceMotion else { return }
                 withAnimation(.easeOut(duration: 1.6).repeatForever(autoreverses: false)) { phase = true }
             }
             .allowsHitTesting(false)

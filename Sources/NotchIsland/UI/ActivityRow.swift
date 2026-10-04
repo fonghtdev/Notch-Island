@@ -73,32 +73,33 @@ struct ActivityRow: View {
         let pauseSymbol = activity.isPaused ? "play.fill" : "pause.fill"
         switch activity.controls {
         case .timer:
-            ControlButton(symbol: pauseSymbol, size: 10, diameter: 26) { viewModel.toggleTimerPause() }
-            ControlButton(symbol: "xmark", size: 10, diameter: 26) { viewModel.cancelTimer() }
+            ControlButton(symbol: pauseSymbol, label: activity.isPaused ? "Tiếp tục hẹn giờ" : "Tạm dừng hẹn giờ", size: 10, diameter: 26) { viewModel.toggleTimerPause() }
+            ControlButton(symbol: "xmark", label: "Huỷ hẹn giờ", size: 10, diameter: 26) { viewModel.cancelTimer() }
         case .stopwatch:
-            ControlButton(symbol: pauseSymbol, size: 10, diameter: 26) { viewModel.toggleStopwatchPause() }
-            ControlButton(symbol: "xmark", size: 10, diameter: 26) { viewModel.resetStopwatch() }
+            ControlButton(symbol: pauseSymbol, label: activity.isPaused ? "Tiếp tục bấm giờ" : "Tạm dừng bấm giờ", size: 10, diameter: 26) { viewModel.toggleStopwatchPause() }
+            ControlButton(symbol: "xmark", label: "Đặt lại bấm giờ", size: 10, diameter: 26) { viewModel.resetStopwatch() }
         case .recording:
-            ControlButton(symbol: pauseSymbol, size: 10, diameter: 26) { viewModel.toggleRecordingPause(activity) }
-            ControlButton(symbol: "stop.fill", size: 10, diameter: 26) { viewModel.stopRecording(activity) }
+            ControlButton(symbol: pauseSymbol, label: activity.isPaused ? "Tiếp tục ghi âm" : "Tạm dừng ghi âm", size: 10, diameter: 26) { viewModel.toggleRecordingPause(activity) }
+            ControlButton(symbol: "stop.fill", label: "Dừng ghi âm", size: 10, diameter: 26) { viewModel.stopRecording(activity) }
         case .call:
             let state = activity.call
             if state?.ringing == true {
-                ControlButton(symbol: "phone.fill", size: 10, diameter: 26, tint: .green) { viewModel.performCall(.answer, activity) }
+                ControlButton(symbol: "phone.fill", label: "Trả lời cuộc gọi", size: 10, diameter: 26, tint: .green) { viewModel.performCall(.answer, activity) }
             } else {
-                ControlButton(symbol: state?.muted == true ? "mic.slash.fill" : "mic.fill", size: 10, diameter: 26,
+                ControlButton(symbol: state?.muted == true ? "mic.slash.fill" : "mic.fill", label: state?.muted == true ? "Bật mic" : "Tắt mic", size: 10, diameter: 26,
                               tint: state?.muted == true ? .orange : nil) { viewModel.performCall(.mute, activity) }
                 // Chỉ app có nút "tắt tiếng" (vd. Discord) / nút camera (gọi video) mới hiện các nút này.
                 if let deafened = state?.deafened {
-                    ControlButton(symbol: deafened ? "speaker.slash.fill" : "speaker.wave.2.fill", size: 10, diameter: 26,
+                    ControlButton(symbol: deafened ? "speaker.slash.fill" : "speaker.wave.2.fill", label: deafened ? "Bật tiếng" : "Tắt tiếng", size: 10, diameter: 26,
                                   tint: deafened ? .orange : nil) { viewModel.performCall(.deafen, activity) }
                 }
                 if let camera = state?.camera {
-                    ControlButton(symbol: camera ? "video.fill" : "video.slash.fill", size: 10, diameter: 26,
+                    ControlButton(symbol: camera ? "video.fill" : "video.slash.fill", label: camera ? "Tắt camera" : "Bật camera", size: 10, diameter: 26,
                                   tint: camera ? nil : .orange) { viewModel.performCall(.camera, activity) }
                 }
             }
-            ControlButton(symbol: "phone.down.fill", size: 10, diameter: 26, tint: .red) { viewModel.performCall(.end, activity) }
+            ControlButton(symbol: "phone.down.fill", label: "Kết thúc cuộc gọi", size: 10, diameter: 26, tint: .red) { viewModel.performCall(.end, activity) }
+                .padding(.leading, 6)   // nút không hoàn tác được: cách xa nút bên cạnh để khó bấm nhầm
         case .none:
             EmptyView()
         }

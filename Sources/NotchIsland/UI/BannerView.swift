@@ -303,6 +303,7 @@ struct BannerIcon: View {
 
 struct FarewellBanner: View {
     @State private var shown = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 4) {
@@ -318,7 +319,9 @@ struct FarewellBanner: View {
                 .foregroundStyle(.white.opacity(0.6))
         }
         .opacity(shown ? 1 : 0)
-        .onAppear { withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.15)) { shown = true } }
+        .onAppear {
+            if reduceMotion { shown = true } else { withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.15)) { shown = true } }
+        }
     }
 }
 
@@ -329,6 +332,7 @@ struct WelcomeBanner: View {
     @State private var index = 0
     @State private var progress: CGFloat = 0
     @State private var showHint = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -356,13 +360,14 @@ struct WelcomeBanner: View {
 
     private func write() {
         progress = 0
-        withAnimation(.easeInOut(duration: 1.6)) { progress = 1 }
+        // Giảm chuyển động: chữ hiện đủ ngay, không "viết" từ trái sang phải.
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 1.6)) { progress = 1 }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             if index + 1 < Self.greetings.count {
                 index += 1
                 write()
             } else {
-                withAnimation(.easeInOut(duration: 0.4)) { showHint = true }
+                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.4)) { showHint = true }
             }
         }
     }

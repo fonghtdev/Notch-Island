@@ -151,7 +151,7 @@ struct LockNowPlayingCard: View {
             ProgressRow(info: info, onSeek: onSeek)
 
             HStack(spacing: 30) {
-                ControlButton(symbol: "backward.fill", size: 22, diameter: 48) { onCommand(.previous) }
+                ControlButton(symbol: "backward.fill", label: "Bài trước", size: 22, diameter: 48) { onCommand(.previous) }
                 Button { onCommand(.playPause) } label: {
                     Image(systemName: info.isPlaying ? "pause.fill" : "play.fill")
                         .font(.system(size: 26, weight: .bold))
@@ -162,8 +162,9 @@ struct LockNowPlayingCard: View {
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(info.isPlaying ? "Tạm dừng" : "Phát")
                 .animation(.easeInOut(duration: 0.2), value: info.isPlaying)
-                ControlButton(symbol: "forward.fill", size: 22, diameter: 48) { onCommand(.next) }
+                ControlButton(symbol: "forward.fill", label: "Bài tiếp", size: 22, diameter: 48) { onCommand(.next) }
             }
         }
     }
