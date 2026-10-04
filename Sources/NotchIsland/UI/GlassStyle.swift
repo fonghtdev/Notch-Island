@@ -28,9 +28,15 @@ struct GlassRim<S: Shape>: View {
     var body: some View {
         ZStack {
             shape
-                .stroke(Color.black.opacity(0.16), lineWidth: 4)
+                .stroke(Color.black.opacity(0.22), lineWidth: 5)
                 .blur(radius: 3)
                 .clipShape(shape)
+            // Quầng sáng mềm sát đáy, bên trong mép: tạo độ dày của khối kính như viên thuốc trong Control Center.
+            shape
+                .stroke(Color.white.opacity(0.16), lineWidth: 6)
+                .blur(radius: 4)
+                .clipShape(shape)
+                .mask(LinearGradient(colors: [.clear, .white], startPoint: .center, endPoint: .bottom))
             shape.stroke(
                 LinearGradient(
                     stops: [
@@ -42,7 +48,7 @@ struct GlassRim<S: Shape>: View {
                     startPoint: .top,
                     endPoint: .bottom
                 ),
-                lineWidth: 1.2
+                lineWidth: 1.6
             )
         }
         .allowsHitTesting(false)

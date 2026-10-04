@@ -19,7 +19,7 @@ enum IslandMetrics {
     static let activityWidth: CGFloat = 380
     static let activityRowHeight: CGFloat = 44
     static let activityRowSpacing: CGFloat = 8
-    static let idleSize = CGSize(width: 340, height: 88)
+    static let idleSize = CGSize(width: 384, height: 88)
     /// Khung xem trước camera (cao tối đa 260 theo cửa sổ cố định).
     static let cameraSize = CGSize(width: 440, height: 240)
 

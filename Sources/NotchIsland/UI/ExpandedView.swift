@@ -42,7 +42,7 @@ struct ExpandedView: View {
         case .media:
             ControlButton(symbol: "line.3.horizontal", size: 12, diameter: 24) { viewModel.showHome() }
                 .help("Pin, hẹn giờ, camera")
-        case .home, .camera:
+        case .home, .camera, .stats:
             ControlButton(symbol: "chevron.left", size: 12, diameter: 24) { viewModel.goBack() }
                 .help("Quay lại")
         default:
@@ -87,10 +87,14 @@ struct ExpandedView: View {
                     battery: viewModel.battery,
                     onStartTimer: viewModel.startTimer,
                     onStartStopwatch: viewModel.startStopwatch,
-                    onCamera: viewModel.toggleCamera
+                    onCamera: viewModel.toggleCamera,
+                    onStats: viewModel.toggleStats
                 )
             case .camera:
                 CameraCard()
+                    .reveal()
+            case .stats:
+                StatsCard()
                     .reveal()
             }
         }
@@ -279,6 +283,7 @@ struct IdleCard: View {
     let onStartTimer: (Int) -> Void
     let onStartStopwatch: () -> Void
     let onCamera: () -> Void
+    let onStats: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -301,6 +306,8 @@ struct IdleCard: View {
                         .reveal(delay: 0.19)
                     CameraChip(action: onCamera)
                         .reveal(delay: 0.23)
+                    StatsChip(action: onStats)
+                        .reveal(delay: 0.27)
                 }
             }
         }
@@ -345,6 +352,27 @@ struct TimerChip: View {
         .onHover { isHovering = $0 }
         .animation(.easeOut(duration: 0.15), value: isHovering)
         .help("Hẹn giờ \(minutes) phút")
+    }
+}
+
+struct StatsChip: View {
+    let action: () -> Void
+    @State private var isHovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "chart.bar.fill")
+                .font(.system(size: 12, weight: .semibold))
+                .frame(minWidth: 28)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 4)
+                .glassPill(Capsule(), fallbackOpacity: 0.1, hovering: isHovering)
+                .scaleEffect(isHovering ? 1.06 : 1)
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovering = $0 }
+        .animation(.easeOut(duration: 0.15), value: isHovering)
+        .help("Thống kê máy")
     }
 }
 

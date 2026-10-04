@@ -98,15 +98,19 @@ final class IslandViewModel: ObservableObject {
         case home
         /// Xem trước camera ngay trên đảo.
         case camera
+        /// Thống kê máy (CPU, RAM, ổ đĩa, mạng) từ menu ☰.
+        case stats
     }
 
     /// Người dùng đã chọn màn hình chính / camera. Tự về mặc định khi đảo thu gọn.
     @Published private(set) var homeShown = false
     @Published private(set) var cameraShown = false
+    @Published private(set) var statsShown = false
 
     var expandedLayout: ExpandedLayout {
         let count = visibleActivities.count
         if cameraShown { return .camera }
+        if statsShown { return .stats }
         if homeShown { return .home }
         if visibleNowPlaying != nil { return .media(withActivity: count > 0) }
         if count > 0 { return .activities(min(count, 2)) }
@@ -164,7 +168,7 @@ final class IslandViewModel: ObservableObject {
                     width: max(IslandMetrics.activityWidth, minWidth),
                     height: notch.height + 10 + body + 14
                 )
-            case .home:
+            case .home, .stats:
                 return CGSize(width: max(IslandMetrics.expandedSize.width, minWidth), height: IslandMetrics.mediaOnlyHeight)
             case .camera:
                 return CGSize(width: max(IslandMetrics.cameraSize.width, minWidth), height: IslandMetrics.cameraSize.height)
@@ -200,6 +204,7 @@ final class IslandViewModel: ObservableObject {
     }
 
     func showHome() { homeShown = true }
+    func toggleStats() { statsShown.toggle() }
     func toggleCamera() {
         cameraShown.toggle()
         CaptureMonitor.ownCameraUntil = cameraShown ? .distantFuture : Date().addingTimeInterval(3)
@@ -207,11 +212,12 @@ final class IslandViewModel: ObservableObject {
 
     /// Quay lại trang trước: camera → màn hình chính / nhạc.
     func goBack() {
-        if cameraShown { toggleCamera() } else { homeShown = false }
+        if cameraShown { toggleCamera() } else if statsShown { statsShown = false } else { homeShown = false }
     }
 
     private func resetPages() {
         homeShown = false
+        statsShown = false
         if cameraShown { toggleCamera() }
     }
 

@@ -220,6 +220,12 @@ final class AppSettings: ObservableObject {
         glassTint = Color(hex: defaults.string(forKey: Key.glassTint) ?? "#000000")
         glassTintStrength = clamp(defaults.double(forKey: Key.glassTintStrength), Self.glassTintStrengthRange)
 
+        // Bản trước đặt sẵn Clear bật cho Liquid Glass; Control Center dùng Regular → đưa giá trị đã lưu về Regular một lần.
+        if defaults.integer(forKey: "glassPresetVersion") < 2 {
+            defaults.set(false, forKey: Key.glassClear)
+            glassClear = false
+            defaults.set(2, forKey: "glassPresetVersion")
+        }
         ambientLight = defaults.bool(forKey: Key.ambientLight)
         ambientIntensity = clamp(defaults.double(forKey: Key.ambientIntensity), 0.2...1)
 
