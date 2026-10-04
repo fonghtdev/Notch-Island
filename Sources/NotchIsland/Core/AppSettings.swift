@@ -29,8 +29,6 @@ final class AppSettings: ObservableObject {
         static let brightnessColor = "brightnessColor"
         static let keyboardColor = "keyboardColor"
         static let islandStyle = "islandStyle"
-        static let ambientLight = "ambientLight"
-        static let ambientIntensity = "ambientIntensity"
         static let glassClear = "glassClear"
         static let glassTint = "glassTint"
         static let glassTintStrength = "glassTintStrength"
@@ -120,16 +118,6 @@ final class AppSettings: ObservableObject {
         IslandSurface(style: islandStyle, isClear: glassClear, tint: glassTint, tintStrength: glassTintStrength)
     }
 
-    // MARK: Ambient light
-
-    /// Ánh sáng viền màn hình theo màu nội dung (cần quyền Ghi màn hình). Mặc định tắt.
-    @Published var ambientLight: Bool {
-        didSet { defaults.set(ambientLight, forKey: Key.ambientLight) }
-    }
-    @Published var ambientIntensity: Double {
-        didSet { defaults.set(ambientIntensity, forKey: Key.ambientIntensity) }
-    }
-
     // MARK: Giao diện HUD
 
     @Published var hudStyle: HUDStyle {
@@ -193,8 +181,6 @@ final class AppSettings: ObservableObject {
             Key.glassClear: false,
             Key.glassTint: "#000000",
             Key.glassTintStrength: 0.08,
-            Key.ambientLight: false,
-            Key.ambientIntensity: 0.7,
         ])
 
         func clamp(_ value: Double, _ range: ClosedRange<Double>) -> Double {
@@ -226,9 +212,6 @@ final class AppSettings: ObservableObject {
             glassClear = false
             defaults.set(2, forKey: "glassPresetVersion")
         }
-        ambientLight = defaults.bool(forKey: Key.ambientLight)
-        ambientIntensity = clamp(defaults.double(forKey: Key.ambientIntensity), 0.2...1)
-
         hudStyle = HUDStyle(rawValue: defaults.string(forKey: Key.hudStyle) ?? "") ?? .bar
         hudBarHeight = clamp(defaults.double(forKey: Key.hudBarHeight), Self.barHeightRange)
         hudCorner = HUDCorner(rawValue: defaults.string(forKey: Key.hudCorner) ?? "") ?? .round

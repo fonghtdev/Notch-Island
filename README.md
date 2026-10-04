@@ -28,7 +28,6 @@ Nhạc, cuộc gọi, hẹn giờ, âm lượng, pin, tai nghe, camera – gói 
 | 📷 **Gương camera** | Xem trước camera ngay trên island, lật gương như Photo Booth. |
 | 🔒 **Màn hình khoá** | Thẻ nhạc, cuộc gọi và (tuỳ chọn) thông báo ngay trên màn hình khoá *(thử nghiệm)*. |
 | 📊 **Thống kê máy** | CPU, RAM, ổ đĩa, tốc độ mạng ngay trên island (☰ → biểu tượng biểu đồ). |
-| 🌈 **Ambient light** | Ánh sáng mềm toả vào từ viền màn hình theo màu nội dung đang xem, cho mọi trang và app *(tuỳ chọn, cần quyền Ghi màn hình)*. |
 | 📱 **Thông báo iPhone** | Thông báo từ iPhone (Apple chuyển sang Mac) hiện lên island *(tuỳ chọn)*. |
 | 🎨 **Nền island** | Đen liền khối với notch, kính mờ, hoặc **Liquid Glass** (macOS 26). |
 
@@ -60,7 +59,6 @@ Các bản cập nhật sau do app tự tải (menu bar → *Kiểm tra cập nh
 | **Automation** | Chuyển tới đúng tab trình duyệt, điều khiển Music / Spotify | Tuỳ chọn |
 | **Camera** | Gương camera trên island | Tuỳ chọn |
 | **Toàn bộ ổ đĩa** | Đọc thông báo để hiện trên màn hình khoá / island (iPhone) | Tuỳ chọn, mặc định tắt |
-| **Ghi màn hình** | Ambient light lấy màu nội dung màn hình (hình không được lưu hay gửi đi) | Tuỳ chọn, mặc định tắt |
 
 Bản ký ad-hoc có thể bị macOS “quên” quyền Trợ năng sau khi cập nhật; app tự nhắc cấp lại một lần.
 

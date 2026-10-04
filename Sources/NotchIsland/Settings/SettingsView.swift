@@ -70,18 +70,6 @@ struct SettingsView: View {
             }
 
             Section {
-                Toggle("Ambient light – ánh sáng viền màn hình theo màu nội dung", isOn: $settings.ambientLight)
-                if settings.ambientLight {
-                    slider("Độ sáng", value: $settings.ambientIntensity, range: 0.2...1,
-                           display: "\(Int((settings.ambientIntensity * 100).rounded()))%")
-                }
-            } header: {
-                Text("Ambient light")
-            } footer: {
-                Text("Chụp màn hình thu nhỏ (~10 khung/giây) để lấy màu bốn cạnh và toả ánh sáng mềm vào viền, cho mọi trang và app. Cần quyền Ghi màn hình (macOS hiện chấm tím trên thanh menu khi đang chụp); hình không được lưu hay gửi đi. Tự dừng khi khoá máy.")
-            }
-
-            Section {
                 Picker("Hiển thị island trên", selection: $settings.displayID) {
                     Text("Tự động (chỉ màn hình có notch)").tag(0)
                     ForEach(screenChoices) { option in
