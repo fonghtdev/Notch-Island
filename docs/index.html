@@ -3,77 +3,247 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NotchIsland – Hỗ trợ</title>
+<title>NotchIsland – Dynamic Island miễn phí cho MacBook</title>
+<meta name="description" content="NotchIsland biến notch MacBook thành Dynamic Island: nhạc đang phát, cuộc gọi, hẹn giờ, âm lượng, pin, tai nghe và camera. Miễn phí, mã nguồn mở, macOS 13 trở lên.">
+<meta name="theme-color" content="#0b0b0f">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NotchIsland – Dynamic Island miễn phí cho MacBook">
+<meta property="og:description" content="Nhạc, cuộc gọi, hẹn giờ, âm lượng, pin, tai nghe và camera ngay trên notch. Miễn phí, mã nguồn mở.">
+<meta property="og:image" content="icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
-  :root { color-scheme: light dark; --fg:#1d1d1f; --bg:#fff; --mut:#6e6e73; --card:#f5f5f7; --acc:#0071e3; }
-  @media (prefers-color-scheme: dark) { :root { --fg:#f5f5f7; --bg:#000; --mut:#98989d; --card:#1c1c1e; --acc:#2997ff; } }
-  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-  main { max-width:760px; margin:0 auto; padding:48px 20px 80px; }
-  h1 { font-size:34px; margin:0 0 4px; } h2 { margin-top:40px; font-size:22px; }
-  p.lead { color:var(--mut); margin-top:0; }
-  details { background:var(--card); border-radius:12px; padding:14px 18px; margin:10px 0; }
-  summary { cursor:pointer; font-weight:600; }
-  a { color:var(--acc); } code { background:var(--card); padding:2px 6px; border-radius:6px; font-size:14px; }
-  kbd { border:1px solid var(--mut); border-radius:5px; padding:0 6px; font-size:13px; }
-  .btns a { display:inline-block; margin:6px 8px 0 0; padding:9px 16px; border-radius:999px; background:var(--acc); color:#fff; text-decoration:none; }
+  :root {
+    color-scheme: dark light;
+    --bg: #0b0b0f; --surface: #15151b; --surface-2: #1d1d25; --line: rgba(255,255,255,.08);
+    --fg: #f4f4f7; --mut: #9a9aa8; --acc: #b794f6; --acc-fg: #14101f;
+    --radius: 22px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg: #f6f6f9; --surface: #fff; --surface-2: #efeff4; --line: rgba(0,0,0,.08);
+            --fg: #16161d; --mut: #6b6b7a; --acc: #6d3fd1; --acc-fg: #fff; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 8px; }
+  .skip { position: absolute; left: 16px; top: -48px; background: var(--acc); color: var(--acc-fg); padding: 8px 14px; border-radius: 10px; z-index: 10; transition: top .2s; }
+  .skip:focus { top: 12px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { text-wrap: balance; letter-spacing: -.02em; line-height: 1.12; margin: 0; }
+
+  /* Hero */
+  .hero { padding: 72px 0 40px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ""; position: absolute; inset: -20% 10% auto; height: 420px; z-index: -1;
+    background: radial-gradient(60% 60% at 50% 0%, color-mix(in srgb, var(--acc) 30%, transparent), transparent 70%); filter: blur(30px); }
+  .brand { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 28px; color: var(--mut); font-weight: 600; }
+  .brand img { width: 44px; height: 44px; border-radius: 11px; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+  h1 { font-size: clamp(38px, 7vw, 68px); font-weight: 800; max-width: 17ch; margin: 0 auto 18px; }
+  .lead { max-width: 52ch; margin: 0 auto 30px; color: var(--mut); font-size: clamp(17px, 2.4vw, 20px); text-wrap: pretty; }
+  .cta { display: flex; gap: 18px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 14px 26px; border-radius: 999px; background: var(--acc); color: var(--acc-fg);
+         font-weight: 700; text-decoration: none; transition: transform .2s, box-shadow .2s, filter .2s; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px color-mix(in srgb, var(--acc) 40%, transparent); }
+  .btn:active { transform: translateY(0) scale(.98); }
+  .link { color: var(--mut); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 2px; transition: color .2s; }
+  .link:hover { color: var(--fg); }
+  .meta { margin-top: 18px; color: var(--mut); font-size: 14px; }
+
+  /* Island minh hoạ vẽ bằng CSS */
+  .stage { margin: 56px auto 0; max-width: 760px; border-radius: 28px; min-height: 270px; /* cố định chiều cao để island mở rộng không đẩy trang */
+           background: linear-gradient(160deg, #f0a07b 0%, #c9708f 38%, #5d5fc4 100%); box-shadow: 0 30px 80px rgba(0,0,0,.35); overflow: hidden; }
+  .bar { height: 28px; background: rgba(0,0,0,.18); backdrop-filter: blur(12px); display: flex; align-items: center; padding: 0 16px; gap: 10px; font-size: 12px; color: rgba(255,255,255,.85); }
+  .bar b { font-weight: 600; } .bar span { opacity: .7; }
+  .island { position: relative; margin: -28px auto 0; width: 190px; height: 32px; background: #000; color: #fff;
+            border-radius: 0 0 14px 14px; transition: width .6s cubic-bezier(.3,1.35,.5,1), height .6s cubic-bezier(.3,1.35,.5,1), border-radius .6s cubic-bezier(.3,1.35,.5,1); overflow: hidden; cursor: default; }
+  .stage:hover .island, .stage:focus-within .island, .stage.open .island { width: 440px; height: 176px; border-radius: 0 0 44px 44px; }
+  .card { text-align: left; position: absolute; left: 0; right: 0; top: 32px; padding: 6px 26px 0; opacity: 0; transform: translateY(-6px); transition: opacity .3s .1s, transform .4s .1s; }
+  .stage:hover .card, .stage:focus-within .card, .stage.open .card { opacity: 1; transform: none; }
+  .track { display: flex; gap: 14px; align-items: center; }
+  .art { width: 58px; height: 58px; border-radius: 13px; background: linear-gradient(135deg, #f3637a, #5a3db0); flex: none; }
+  .t1 { font-weight: 600; font-size: 15px; } .t2 { color: rgba(255,255,255,.6); font-size: 13px; }
+  .eq { margin-left: auto; display: flex; gap: 3px; align-items: end; height: 18px; }
+  .eq i { width: 3px; background: #f3637a; border-radius: 2px; animation: eq 1s ease-in-out infinite; }
+  .eq i:nth-child(2) { animation-delay: .2s; } .eq i:nth-child(3) { animation-delay: .4s; } .eq i:nth-child(4) { animation-delay: .1s; }
+  @keyframes eq { 0%,100% { height: 4px; } 50% { height: 18px; } }
+  .prog { display: flex; align-items: center; gap: 10px; margin-top: 18px; font-size: 11px; color: rgba(255,255,255,.6); font-variant-numeric: tabular-nums; }
+  .prog .rail { flex: 1; height: 4px; border-radius: 4px; background: rgba(255,255,255,.18); }
+  .prog .rail::after { content: ""; display: block; width: 30%; height: 100%; border-radius: 4px; background: #f3637a; }
+  .hint { text-align: center; margin-top: 18px; color: var(--mut); font-size: 14px; }
+
+  /* Tính năng: lưới bất đối xứng */
+  section { padding: 72px 0 0; }
+  h2 { font-size: clamp(26px, 4vw, 38px); margin-bottom: 28px; }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  .feat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .feat h3 { font-size: 19px; margin-bottom: 8px; } .feat p { margin: 0; color: var(--mut); text-wrap: pretty; }
+  .f1 { grid-column: span 4; } .f2 { grid-column: span 2; } .f3 { grid-column: span 2; } .f4 { grid-column: span 4; }
+  .f5 { grid-column: span 3; } .f6 { grid-column: span 3; }
+  .feat small { display: inline-block; margin-bottom: 14px; padding: 3px 10px; border-radius: 8px; background: var(--surface-2); color: var(--mut); font-size: 12px; font-weight: 600; }
+
+  /* Cài đặt */
+  .steps { counter-reset: s; display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); padding: 0; list-style: none; margin: 0; }
+  .steps li { counter-increment: s; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .steps li::before { content: counter(s); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--acc); color: var(--acc-fg); font-weight: 800; margin-bottom: 14px; }
+  .steps b { display: block; margin-bottom: 4px; } .steps span { color: var(--mut); }
+  code, kbd { background: var(--surface-2); padding: 2px 7px; border-radius: 7px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  kbd { border: 1px solid var(--line); }
+
+  /* Hỏi đáp có tìm kiếm */
+  .search { width: 100%; padding: 14px 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; margin-bottom: 14px; }
+  .search::placeholder { color: var(--mut); }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 10px; overflow: hidden; }
+  summary { cursor: pointer; padding: 16px 20px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; transition: background .2s; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--mut); font-weight: 400; font-size: 20px; line-height: 1; transition: transform .2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  summary:hover { background: var(--surface-2); }
+  details > div { padding: 0 20px 18px; color: var(--mut); text-wrap: pretty; }
+  details > div b { color: var(--fg); }
+  .empty { display: none; color: var(--mut); padding: 8px 4px; }
+
+  footer { margin-top: 96px; border-top: 1px solid var(--line); padding: 32px 0 56px; color: var(--mut); font-size: 14px; }
+  footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { text-decoration: none; border-bottom: 1px solid var(--line); }
+
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; } .grid > * { grid-column: auto !important; }
+    .steps { grid-template-columns: 1fr; }
+    .stage:hover .island, .stage:focus-within .island, .stage.open .island { width: min(440px, 94%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+    html { scroll-behavior: auto; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>NotchIsland – Hỗ trợ</h1>
-  <p class="lead">Dynamic Island miễn phí cho notch MacBook. Cần trợ giúp? Xem các câu hỏi thường gặp bên dưới.</p>
-  <div class="btns">
-    <a id="dl" href="#">Tải bản mới nhất</a>
-    <a id="issue" href="#">Báo lỗi / góp ý</a>
+<a class="skip" href="#hoi-dap">Tới phần hỏi đáp</a>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand"><img src="icon.png" alt="" width="44" height="44"> NotchIsland</div>
+    <h1>Biến notch MacBook thành Dynamic Island</h1>
+    <p class="lead">Nhạc đang phát, cuộc gọi, hẹn giờ, âm lượng, pin, tai nghe và camera – gói gọn trong một viên thuốc ngay dưới camera. Miễn phí, mã nguồn mở.</p>
+    <div class="cta">
+      <a class="btn" id="dl" href="https://github.com/fonghtdev/Notch-Island/releases/latest">Tải cho macOS</a>
+      <a class="link" id="src" href="https://github.com/fonghtdev/Notch-Island">Xem mã nguồn</a>
+    </div>
+    <p class="meta">macOS 13 trở lên · Apple Silicon và Intel · Không thu thập dữ liệu</p>
+
+    <div class="stage" tabindex="0" aria-label="Minh hoạ island: rê chuột hoặc bấm vào để mở rộng">
+      <div class="bar"><b>Music</b><span>Tệp</span><span>Sửa</span><span>Xem</span></div>
+      <div class="island" role="img" aria-label="Island mở rộng hiện bài nhạc đang phát">
+        <div class="card">
+          <div class="track">
+            <div class="art" aria-hidden="true"></div>
+            <div><div class="t1">Mấy cái cúc (Lyric Video)</div><div class="t2">Tazle, YBEEsofresh</div></div>
+            <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="prog"><span>1:14</span><div class="rail"></div><span>4:01</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Rê chuột (hoặc chạm) vào để xem island mở rộng</p>
   </div>
+</header>
 
-  <h2>Cài đặt</h2>
-  <details open><summary>Cài NotchIsland như thế nào?</summary>
-    Mở file <code>.dmg</code>, kéo NotchIsland vào <b>Applications</b>, eject ổ đĩa rồi mở app từ Applications.
-    Lần đầu app tự bật "Mở cùng macOS" và xin quyền Trợ năng – bạn chỉ cần bấm "Cấp quyền" một lần.</details>
-  <details><summary>macOS báo “không thể xác minh nhà phát triển” / “đã bị hỏng”</summary>
-    App chưa được Apple notarize nên Gatekeeper cảnh báo. Cách mở: <b>Cài đặt hệ thống → Quyền riêng tư &amp; Bảo mật → kéo xuống → “Vẫn mở”</b>.
-    Nếu báo “đã bị hỏng”, mở Terminal và chạy: <code>xattr -dr com.apple.quarantine /Applications/NotchIsland.app</code>.
-    Các lần cập nhật sau do app tự tải nên không gặp lại cảnh báo này.</details>
+<main class="wrap">
+  <section aria-labelledby="tinh-nang">
+    <h2 id="tinh-nang">Mọi thứ cần thiết, ngay trên notch</h2>
+    <div class="grid">
+      <article class="feat f1"><small>Nhạc</small><h3>Đang phát từ mọi nguồn</h3><p>YouTube, Spotify, Apple Music, VLC… với ảnh bìa độ phân giải cao, thanh tiến trình kéo để tua, và bấm vào bài để mở đúng tab đang phát.</p></article>
+      <article class="feat f2"><small>HUD</small><h3>Âm lượng, độ sáng</h3><p>Thay HUD của macOS bằng thanh gọn gàng, tuỳ chỉnh được kiểu và màu.</p></article>
+      <article class="feat f3"><small>Sạc &amp; tai nghe</small><h3>Thẻ gọn, đẹp</h3><p>Cắm sạc, AirPods, Beats với pin từng tai.</p></article>
+      <article class="feat f4"><small>Cuộc gọi</small><h3>Nghe, tắt mic, kết thúc ngay trên island</h3><p>Nhận Zalo, Messenger, Discord, Teams, FaceTime và cả cuộc gọi iPhone, kèm tên người gọi, đồng hồ khớp với app và các nút điều khiển.</p></article>
+      <article class="feat f5"><small>Camera</small><h3>Gương trên island</h3><p>Xem trước camera lật gương như Photo Booth chỉ bằng một cú bấm.</p></article>
+      <article class="feat f6"><small>Hệ thống</small><h3>Thống kê và thông báo iPhone</h3><p>CPU, RAM, ổ đĩa, mạng; thông báo iPhone hiện lên island khi bạn bật.</p></article>
+    </div>
+  </section>
 
-  <h2>Quyền</h2>
-  <details><summary>HUD âm lượng / độ sáng của macOS vẫn hiện, không bị thay</summary>
-    Cần quyền <b>Trợ năng</b>: Cài đặt hệ thống → Quyền riêng tư &amp; Bảo mật → Trợ năng → bật NotchIsland. Cấp xong có hiệu lực ngay, không cần mở lại app.
-    Nếu NotchIsland đã bật mà vẫn không chạy: tắt rồi bật lại, hoặc xoá dòng NotchIsland khỏi danh sách và thêm lại.</details>
-  <details><summary>Sau khi cập nhật, app xin lại quyền Trợ năng</summary>
-    Với bản chưa ký Developer ID, macOS coi mỗi phiên bản là một app mới nên có thể quên quyền. Hãy cấp lại theo hướng dẫn ở trên.</details>
-  <details><summary>Chỉnh đèn bàn phím</summary>
-    Giữ <kbd>fn</kbd> + <kbd>1</kbd> để giảm, <kbd>fn</kbd> + <kbd>2</kbd> để tăng. Nếu macOS hỏi quyền <b>Giám sát đầu vào</b> (Input Monitoring) thì hãy cho phép. Máy không có đèn bàn phím thì phím được trả về cho macOS.</details>
+  <section aria-labelledby="cai-dat">
+    <h2 id="cai-dat">Cài đặt trong ba bước</h2>
+    <ol class="steps">
+      <li><b>Tải về</b><span>Lấy file <code>.dmg</code> mới nhất ở trang Releases.</span></li>
+      <li><b>Kéo vào Applications</b><span>Eject ổ đĩa rồi mở NotchIsland từ Applications.</span></li>
+      <li><b>Cấp quyền Trợ năng</b><span>Lần đầu app tự bật “Mở cùng macOS” và xin quyền một lần duy nhất.</span></li>
+    </ol>
+  </section>
 
-  <h2>Tính năng</h2>
-  <details><summary>Không hiện nhạc đang phát</summary>
-    Mở nhạc ở Apple Music / Spotify / trình duyệt (YouTube…) rồi thử lại. Từ macOS 15.4 Apple khoá API nhạc với app thường nên NotchIsland dùng adapter riêng; nếu Apple vá, app tự chuyển sang nguồn dự phòng (Music, Spotify). Trong Cài đặt có thể tắt/bật "Nhạc đang phát".</details>
-  <details><summary>Ảnh bìa bị mờ</summary>
-    Bật "Ảnh bìa độ phân giải cao" trong Cài đặt → Hiển thị (tra iTunes bằng tên bài và nghệ sĩ).</details>
-  <details><summary>Màn hình khoá không hiện thẻ</summary>
-    Tính năng thử nghiệm, dùng API riêng tư của Apple nên có thể không chạy trên mọi bản macOS. Thông báo trên màn hình khoá cần quyền Toàn bộ ổ đĩa.</details>
-  <details><summary>Island hiện sai màn hình</summary>
-    Cài đặt → Màn hình → chọn màn hình muốn hiển thị.</details>
+  <section id="hoi-dap" aria-labelledby="hd">
+    <h2 id="hd">Câu hỏi thường gặp</h2>
+    <label for="q" class="sr" style="position:absolute;left:-9999px">Tìm câu hỏi</label>
+    <input class="search" id="q" type="search" placeholder="Tìm câu hỏi: quyền, nhạc, cuộc gọi, cập nhật…" autocomplete="off">
+    <p class="empty" id="none">Không có câu hỏi nào khớp. <a href="#loi" id="issue3">Báo lỗi hoặc góp ý</a>.</p>
+    <div id="faq">
+      <details><summary>macOS báo “không thể xác minh nhà phát triển” hoặc “đã bị hỏng”</summary>
+        <div>Bản phát hành chưa được Apple notarize nên Gatekeeper cảnh báo. Mở <b>Cài đặt hệ thống → Quyền riêng tư &amp; Bảo mật</b>, kéo xuống và bấm <b>Vẫn mở</b>. Nếu báo “đã bị hỏng”, chạy trong Terminal: <code>xattr -dr com.apple.quarantine /Applications/NotchIsland.app</code>. Các lần cập nhật sau do app tự tải nên không gặp lại.</div></details>
+      <details><summary>HUD âm lượng / độ sáng của macOS vẫn hiện, không bị thay</summary>
+        <div>Cần quyền <b>Trợ năng</b>: Cài đặt hệ thống → Quyền riêng tư &amp; Bảo mật → Trợ năng → bật NotchIsland. Có hiệu lực ngay, không cần mở lại app. Đã bật mà vẫn không chạy: tắt rồi bật lại, hoặc xoá NotchIsland khỏi danh sách và thêm lại.</div></details>
+      <details><summary>Sau khi cập nhật, app xin lại quyền Trợ năng</summary>
+        <div>Bản chưa ký Developer ID bị macOS coi mỗi phiên bản là một app mới nên có thể quên quyền. Cấp lại theo hướng dẫn ở trên.</div></details>
+      <details><summary>Chỉnh đèn bàn phím</summary>
+        <div>Giữ <kbd>fn</kbd> + <kbd>1</kbd> để giảm, <kbd>fn</kbd> + <kbd>2</kbd> để tăng. macOS hỏi quyền <b>Giám sát đầu vào</b> thì hãy cho phép. Máy không có đèn bàn phím thì phím được trả về cho macOS.</div></details>
+      <details><summary>Không hiện nhạc đang phát</summary>
+        <div>Mở nhạc ở Apple Music, Spotify hoặc trình duyệt (YouTube…) rồi thử lại. Từ macOS 15.4 Apple khoá API nhạc với app thường nên NotchIsland dùng adapter riêng; nếu Apple vá, app tự chuyển sang nguồn dự phòng (Music, Spotify). Trong Cài đặt có thể bật tắt “Nhạc đang phát”.</div></details>
+      <details><summary>Nút tắt mic / kết thúc cuộc gọi không bấm được</summary>
+        <div>Các nút này bấm vào nút của chính app gọi nên cần quyền <b>Trợ năng</b>, và app gọi phải lộ nút ra hệ thống (Zalo, Messenger, Teams có thể khác nhau theo phiên bản). Đang trong cuộc gọi, bấm biểu tượng trên thanh menu giữ phím Option → Nâng cao → “Chẩn đoán cuộc gọi…” rồi gửi nội dung khi báo lỗi.</div></details>
+      <details><summary>Camera trên island không lên</summary>
+        <div>Cần quyền <b>Camera</b>: Cài đặt hệ thống → Quyền riêng tư &amp; Bảo mật → Camera → bật NotchIsland. Hình chỉ hiện trên island, không được lưu hay gửi đi.</div></details>
+      <details><summary>Màn hình khoá không hiện thẻ</summary>
+        <div>Tính năng thử nghiệm, dùng API riêng tư của Apple nên có thể không chạy trên mọi bản macOS. Thông báo trên màn hình khoá và thông báo iPhone cần quyền <b>Toàn bộ ổ đĩa</b>.</div></details>
+      <details><summary>Máy tôi không có notch, island biến mất</summary>
+        <div>Đúng vậy: ở chế độ màn hình “Tự động”, máy không có notch sẽ ẩn hẳn island và để macOS tự hiện HUD. Muốn vẫn dùng island dạng notch giả thì chọn một màn hình cụ thể trong Cài đặt → Màn hình.</div></details>
+      <details><summary>Island hiện sai màn hình</summary>
+        <div>Cài đặt → Màn hình → chọn màn hình muốn hiển thị.</div></details>
+      <details><summary>Cập nhật thế nào?</summary>
+        <div>App tự kiểm tra bản mới và hỏi bạn. Cũng có thể bấm biểu tượng trên thanh menu → “Kiểm tra cập nhật…”. Tắt tự kiểm tra trong Cài đặt → Cập nhật.</div></details>
+      <details><summary>Gỡ cài đặt</summary>
+        <div>Mở <b>Cài đặt → Gỡ NotchIsland khỏi máy…</b> (có hỏi xác nhận): app xoá cài đặt, dữ liệu tạm, các quyền đã cấp rồi chuyển chính nó vào Thùng rác.</div></details>
+    </div>
+  </section>
 
-  <h2>Cập nhật &amp; gỡ cài đặt</h2>
-  <details><summary>Cập nhật thế nào?</summary>
-    App tự kiểm tra bản mới và hỏi bạn. Cũng có thể bấm biểu tượng trên thanh menu → “Kiểm tra cập nhật…”. Tắt tự kiểm tra trong Cài đặt → Cập nhật.</details>
-  <details><summary>Gỡ cài đặt</summary>
-    Thoát app, tắt "Mở cùng macOS" trong Cài đặt, rồi kéo NotchIsland ra khỏi Applications.</details>
-
-  <h2>Vẫn cần trợ giúp?</h2>
-  <p>Mở <b>Cài đặt → Hỗ trợ → Sao chép thông tin chẩn đoán</b>, rồi <a id="issue2" href="#">tạo một issue</a> và dán thông tin vào.</p>
+  <section id="loi" aria-labelledby="tl">
+    <h2 id="tl">Vẫn cần trợ giúp?</h2>
+    <p style="color:var(--mut);max-width:60ch">Cách nhanh nhất: mở <b style="color:var(--fg)">Cài đặt → Hỗ trợ</b>, mô tả vấn đề rồi bấm <b style="color:var(--fg)">Gửi báo lỗi</b>. App mở sẵn form GitHub kèm thông tin chẩn đoán (chỉ gồm phiên bản, macOS, chip và trạng thái quyền) – bạn chỉ cần bấm Submit. Hoặc <a id="issue" href="https://github.com/fonghtdev/Notch-Island/issues/new/choose">tạo issue trực tiếp</a>.</p>
+  </section>
 </main>
+
+<footer>
+  <div class="wrap row">
+    <span>© NotchIsland · Tác giả <a href="https://github.com/fonghtdev">Phong (@fonghtdev)</a></span>
+    <span><a id="repo" href="https://github.com/fonghtdev/Notch-Island">Mã nguồn</a> · Không thu thập dữ liệu, không có máy chủ riêng</span>
+  </div>
+</footer>
+
 <script>
-  // Tự suy ra kho từ địa chỉ GitHub Pages (owner.github.io/repo). Mở bằng cách khác thì đặt REPO thủ công.
+  // Kho GitHub: suy ra từ địa chỉ GitHub Pages (owner.github.io/repo); mở bằng cách khác thì dùng kho mặc định bên dưới.
   var m = location.hostname.match(/^(.+)\.github\.io$/), parts = location.pathname.split('/').filter(Boolean);
-  var REPO = m && parts[0] ? m[1] + '/' + parts[0] : '';
-  if (REPO) {
-    var base = 'https://github.com/' + REPO;
-    document.getElementById('dl').href = base + '/releases/latest';
-    document.getElementById('issue').href = base + '/issues/new/choose';
-    document.getElementById('issue2').href = base + '/issues/new/choose';
-  }
+  var REPO = m && parts[0] ? m[1] + '/' + parts[0] : 'fonghtdev/Notch-Island', base = 'https://github.com/' + REPO;
+  document.getElementById('dl').href = base + '/releases/latest';
+  document.getElementById('src').href = base;
+  document.getElementById('repo').href = base;
+  ['issue', 'issue3'].forEach(function (id) { var a = document.getElementById(id); if (a && id === 'issue') a.href = base + '/issues/new/choose'; });
+  document.getElementById('issue3').href = base + '/issues/new/choose';
+
+  // Bấm vào minh hoạ để mở / đóng island (màn cảm ứng không có hover).
+  var stage = document.querySelector('.stage');
+  stage.addEventListener('click', function () { stage.classList.toggle('open'); });
+
+  // Lọc câu hỏi theo từ khoá (không phân biệt dấu thanh: so khớp sau khi bỏ dấu).
+  var strip = function (s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase(); };
+  var items = [].slice.call(document.querySelectorAll('#faq details')), none = document.getElementById('none');
+  document.getElementById('q').addEventListener('input', function (e) {
+    var q = strip(e.target.value.trim()), shown = 0;
+    items.forEach(function (d) {
+      var hit = !q || strip(d.textContent).indexOf(q) !== -1;
+      d.style.display = hit ? '' : 'none';
+      if (hit) shown++;
+      if (q && hit) d.open = true; else if (!q) d.open = false;
+    });
+    none.style.display = shown ? 'none' : 'block';
+  });
 </script>
 </body>
 </html>

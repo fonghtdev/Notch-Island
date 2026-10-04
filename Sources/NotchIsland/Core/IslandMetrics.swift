@@ -9,6 +9,9 @@ enum IslandMetrics {
     /// Thẻ mở rộng: tai cong lớn hơn cho mép kính mềm, liền với mép màn hình.
     static let expandedEarRadius: CGFloat = 24
     static let collapsedBottomRadius: CGFloat = 10
+    /// HUD có thêm hàng thanh bên dưới notch nên cao hơn: góc dưới bo tròn hơn (kiểu vòng chỉ cao bằng notch → bo vừa).
+    static let hudBottomRadius: CGFloat = 22
+    static let hudRingBottomRadius: CGFloat = 14
     static let expandedBottomRadius: CGFloat = 44
 
     /// Độ rộng mỗi "cánh" hai bên notch ở trạng thái compact.

@@ -10,20 +10,24 @@ struct HUDView: View {
     var inline = false
 
     private var tint: Color { appearance.color(for: event.kind) }
+    private var edge: CGFloat { inline ? 8 : 18 }
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
+                // Biểu tượng và giá trị cùng lề 18 với đầu / cuối thanh bên dưới (thẻ mở rộng: lề nhỏ hơn cho vừa cánh).
                 Image(systemName: event.symbolName)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(tint)
                     .symbolSwap()
-                    .frame(width: IslandMetrics.hudWingWidth)
+                    .padding(.leading, edge)
+                    .frame(width: IslandMetrics.hudWingWidth, alignment: .leading)
 
                 Spacer(minLength: notchSize.width)
 
                 trailing
-                    .frame(width: IslandMetrics.hudWingWidth)
+                    .padding(.trailing, edge)
+                    .frame(width: IslandMetrics.hudWingWidth, alignment: .trailing)
             }
             .frame(height: notchSize.height)
 
@@ -57,7 +61,7 @@ struct HUDView: View {
             HUDRing(value: event.displayValue, tint: tint, appearance: appearance)
         } else if appearance.showsPercent {
             Text(event.isMuted ? "Tắt" : "\(Int((event.displayValue * 100).rounded()))")
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .monospacedDigit()
         } else {
             Color.clear

@@ -189,7 +189,8 @@ final class IslandViewModel: ObservableObject {
         switch mode {
         case .expanded: return IslandMetrics.expandedBottomRadius
         case .banner: return IslandMetrics.bannerBottomRadius
-        case .collapsed, .compact, .hud: return IslandMetrics.collapsedBottomRadius
+        case .hud: return settings.hudAppearance.style == .ring ? IslandMetrics.hudRingBottomRadius : IslandMetrics.hudBottomRadius
+        case .collapsed, .compact: return IslandMetrics.collapsedBottomRadius
         }
     }
 

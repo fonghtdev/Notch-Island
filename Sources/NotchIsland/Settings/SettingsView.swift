@@ -17,8 +17,12 @@ struct SettingsView: View {
     @State private var previewKind: HUDEvent.Kind = .volume
     @State private var previewValue: Double = 0.65
 
+    /// Hướng dẫn mở sẵn cho người mới; gập lại một lần là nhớ luôn.
+    @AppStorage("settingsGuideExpanded") private var guideExpanded = true
+
     var body: some View {
         Form {
+            brandHeader
             guideSection
 
             Section("Hiển thị") {
@@ -50,7 +54,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Phím điều khiển")
                 } footer: {
-                    Text("NotchIsland tự thay HUD âm lượng / độ sáng / đèn bàn phím của macOS khi có quyền Trợ năng – cấp quyền xong là áp dụng ngay, không cần mở lại app. Phím tắt đèn bàn phím dành cho máy không có phím đèn riêng; nếu macOS hỏi quyền Giám sát đầu vào (Input Monitoring) thì hãy cho phép.")
+                    Text("Có quyền Trợ năng thì NotchIsland thay HUD âm lượng, độ sáng, đèn bàn phím của macOS và áp dụng ngay, không cần mở lại app. Phím tắt đèn bàn phím dành cho máy không có phím đèn riêng; macOS hỏi Giám sát đầu vào thì hãy cho phép.")
                 }
             }
 
@@ -187,17 +191,57 @@ struct SettingsView: View {
 
     // MARK: - Hướng dẫn
 
+    private var brandHeader: some View {
+        Section {
+            HStack(spacing: 14) {
+                // Chạy bằng `swift run` không có gói .app nên không có biểu tượng app: dùng biểu tượng viên thuốc thay thế.
+                if Bundle.main.bundlePath.hasSuffix(".app") {
+                    Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 56, height: 56)
+                } else {
+                    Image(systemName: "capsule.fill").font(.system(size: 30)).foregroundStyle(.tint).frame(width: 56, height: 56)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("NotchIsland").font(.title2.weight(.semibold))
+                    Text("Phiên bản \(AppInfo.version) · Dynamic Island cho notch MacBook")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4))
+        }
+    }
+
     private var guideSection: some View {
         Section {
-            guideRow("capsule.fill", "island nằm ngay notch", "Rê chuột vào notch (hoặc bấm, tuỳ mục Hành vi) để mở rộng: nhạc, hẹn giờ, hoạt động.")
-            guideRow("menubar.rectangle", "Biểu tượng trên thanh menu", "Bấm biểu tượng viên thuốc để đặt hẹn giờ, bấm giờ, mở Cài đặt hoặc thoát.")
-            guideRow("music.note", "Nhạc", "Phát nhạc ở Music, Spotify hoặc trình duyệt – bài hát tự hiện trên island, bấm thanh tiến trình để tua.")
-            guideRow("speaker.wave.2.fill", "Âm lượng, độ sáng", "Dùng phím như bình thường; HUD hiện trên island. Cần cấp quyền Trợ năng (xem mục Phím điều khiển).")
-            guideRow("headphones", "Tai nghe, sạc", "Kết nối tai nghe Bluetooth hoặc cắm sạc, island tự báo.")
-        } header: {
-            Text("Bắt đầu nhanh")
+            // Nút gập tự viết: DisclosureGroup trong Form làm các dòng bên trong bị lệch hàng.
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { guideExpanded.toggle() }
+            } label: {
+                HStack {
+                    Text("Bắt đầu nhanh").font(.headline)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(guideExpanded ? 90 : 0))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if guideExpanded {
+                guideRow("capsule.fill", "Island nằm ngay notch", "Rê chuột vào notch (hoặc bấm, tuỳ mục Hành vi) để mở rộng: nhạc, hẹn giờ, hoạt động.")
+                guideRow("menubar.rectangle", "Biểu tượng trên thanh menu", "Bấm biểu tượng viên thuốc để đặt hẹn giờ, bấm giờ, mở Cài đặt hoặc thoát.")
+                guideRow("music.note", "Nhạc", "Phát nhạc ở Music, Spotify hoặc trình duyệt – bài hát tự hiện trên island, bấm thanh tiến trình để tua.")
+                guideRow("speaker.wave.2.fill", "Âm lượng, độ sáng", "Dùng phím như bình thường; HUD hiện trên island. Cần cấp quyền Trợ năng (xem mục Phím điều khiển).")
+                guideRow("headphones", "Tai nghe, sạc", "Kết nối tai nghe Bluetooth hoặc cắm sạc, island tự báo.")
+            }
         } footer: {
-            Text("App không có cửa sổ chính – mọi thứ nằm ở notch và menu bar. Gặp lỗi? Kéo xuống mục Hỗ trợ.")
+            if guideExpanded {
+                Text("App không có cửa sổ chính – mọi thứ nằm ở notch và menu bar. Gặp lỗi? Kéo xuống mục Hỗ trợ.")
+            }
         }
     }
 
@@ -271,7 +315,7 @@ struct SettingsView: View {
         } header: {
             Text("Màn hình khoá (thử nghiệm)")
         } footer: {
-            Text("Thẻ gồm nhạc, cuộc gọi / hẹn giờ đang diễn ra và (nếu bật) thông báo; dùng API riêng tư của Apple nên có thể không chạy trên mọi bản macOS. Đọc thông báo cần cấp quyền Toàn bộ ổ đĩa cho app (hoặc cho Terminal nếu chạy bằng swift run). Lưu ý: ai đứng trước máy đang khoá cũng đọc được thông báo hiện trên thẻ.")
+            Text("Thẻ hiện nhạc, cuộc gọi, hẹn giờ và (nếu bật ở mục Hiển thị) thông báo. Dùng API riêng tư của Apple nên có thể không chạy trên mọi bản macOS. Ai đứng trước máy đang khoá cũng đọc được thông báo trên thẻ.")
         }
     }
 
@@ -364,7 +408,8 @@ struct SettingsView: View {
         let width = notch.width + IslandMetrics.hudWingWidth * 2
         let height = notch.height + appearance.extraHeight
 
-        let shape = NotchShape(earRadius: IslandMetrics.earRadius, bottomRadius: IslandMetrics.collapsedBottomRadius)
+        let shape = NotchShape(earRadius: IslandMetrics.earRadius,
+                               bottomRadius: appearance.style == .ring ? IslandMetrics.hudRingBottomRadius : IslandMetrics.hudBottomRadius)
 
         // Khung xem trước cao cố định (đủ cho HUD cao nhất) → hàng trong Form không đổi chiều cao khi đổi kiểu HUD.
         return ZStack(alignment: .top) {

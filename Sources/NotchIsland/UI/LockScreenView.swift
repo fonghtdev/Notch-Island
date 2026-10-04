@@ -35,6 +35,7 @@ struct LockScreenView: View {
         .animation(.easeInOut(duration: 0.4), value: viewModel.visibleNowPlaying?.artworkID)
         .foregroundStyle(.white)
         .environment(\.colorScheme, .dark)
+        .environment(\.islandGlass, viewModel.settings.islandStyle != .frosted && IslandSurface.supportsLiquidGlass)
         .fixedSize(horizontal: false, vertical: true)
     }
 }
@@ -68,6 +69,16 @@ struct NotificationRow: View {
     let item: NotificationItem
     let onDismiss: () -> Void
 
+    /// "Vừa xong" / "5 phút" / "2 giờ": gọn, không có giây.
+    static func age(of date: Date, at now: Date) -> String {
+        let minutes = Int(max(0, now.timeIntervalSince(date)) / 60)
+        switch minutes {
+        case 0: return "Vừa xong"
+        case 1..<60: return "\(minutes) phút"
+        default: return "\(minutes / 60) giờ"
+        }
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Group {
@@ -85,9 +96,11 @@ struct NotificationRow: View {
                         .font(.system(size: 12.5, weight: .semibold))
                         .lineLimit(1)
                     Spacer(minLength: 4)
-                    Text(item.date, style: .relative)
-                        .font(.system(size: 10))
-                        .foregroundStyle(.white.opacity(0.45))
+                    TimelineView(.periodic(from: .now, by: 30)) { context in
+                        Text(Self.age(of: item.date, at: context.date))
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white.opacity(0.45))
+                    }
                 }
                 if !item.subtitle.isEmpty {
                     Text(item.subtitle).font(.system(size: 11.5, weight: .medium)).lineLimit(1)
