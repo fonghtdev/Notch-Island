@@ -270,20 +270,32 @@ struct TimerDoneBanner: View {
     let label: String
 
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "bell.fill")
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(.orange)
-                .frame(width: 54)
-            VStack(alignment: .leading, spacing: 3) {
+        HStack(spacing: 12) {
+            BannerIcon(symbol: "bell.fill", tint: .orange)
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Hết giờ")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 13.5, weight: .semibold))
                 Text(label)
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.6))
             }
-            Spacer()
+            Spacer(minLength: 0)
         }
+        .padding(.horizontal, 6)
+    }
+}
+
+/// Biểu tượng tròn dùng chung cho các banner một dòng (hết giờ, thông báo): vòng màu nhạt + biểu tượng cùng màu.
+struct BannerIcon: View {
+    let symbol: String
+    let tint: Color
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 17, weight: .semibold))
+            .foregroundStyle(tint)
+            .frame(width: 38, height: 38)
+            .background(Circle().fill(tint.opacity(0.18)))
     }
 }
 
@@ -363,14 +375,10 @@ struct NotificationBanner: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "iphone")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.blue)
-                .frame(width: 36, height: 36)
-                .background(Circle().fill(.blue.opacity(0.18)))
+            BannerIcon(symbol: "iphone", tint: .blue)
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.title.isEmpty ? "iPhone" : item.title)
-                    .font(.system(size: 12.5, weight: .semibold))
+                    .font(.system(size: 13.5, weight: .semibold))
                     .lineLimit(1)
                 Text(item.body.isEmpty ? item.subtitle : item.body)
                     .font(.system(size: 11))
@@ -379,5 +387,6 @@ struct NotificationBanner: View {
             }
             Spacer(minLength: 0)
         }
+        .padding(.horizontal, 6)
     }
 }

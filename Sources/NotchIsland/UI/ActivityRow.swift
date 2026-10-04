@@ -49,14 +49,16 @@ struct ActivityRow: View {
                             .monospacedDigit()
                             .foregroundStyle(activity.tint)
                             .opacity(activity.isPaused ? 0.5 : 1)
-                            .padding(.leading, 8)
-                            .padding(.trailing, hasControls ? 2 : 8)
+                            .fixedSize()
+                            .padding(.leading, 10)
+                            .padding(.trailing, hasControls ? 2 : 10)
                     }
                 }
                 controlButtons
             }
             .frame(height: 30)
             .glassPill(Capsule(), fallbackOpacity: 0.08, interactive: false)
+            .layoutPriority(1)
             .animation(.easeInOut(duration: 0.2), value: activity.isPaused)
         }
         .frame(height: IslandMetrics.activityRowHeight)

@@ -16,7 +16,7 @@ enum IslandMetrics {
     static let expandedSize = CGSize(width: 440, height: 176)
     /// Thẻ mở rộng co giãn theo nội dung (xem `ExpandedLayout`).
     static let mediaOnlyHeight: CGFloat = 152
-    static let activityWidth: CGFloat = 380
+    static let activityWidth: CGFloat = 424
     static let activityRowHeight: CGFloat = 44
     static let activityRowSpacing: CGFloat = 8
     static let idleSize = CGSize(width: 384, height: 92)
