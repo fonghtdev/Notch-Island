@@ -34,6 +34,10 @@ struct SettingsView: View {
                     .onChange(of: settings.lockScreenNotifications) { on in
                         if on { Onboarding.askFullDiskAccess() }
                     }
+                Toggle("Thông báo từ iPhone (cần quyền Toàn bộ ổ đĩa)", isOn: $settings.iphoneNotifications)
+                    .onChange(of: settings.iphoneNotifications) { on in
+                        if on { Onboarding.askFullDiskAccess() }
+                    }
             }
 
             if settings.showHUD {
@@ -65,13 +69,29 @@ struct SettingsView: View {
                 Text("Kích thước và bo góc island được cố định theo tỉ lệ chuẩn để luôn khớp với notch.")
             }
 
-            Section("Màn hình") {
+            Section {
+                Toggle("Ambient light – ánh sáng viền màn hình theo màu nội dung", isOn: $settings.ambientLight)
+                if settings.ambientLight {
+                    slider("Độ sáng", value: $settings.ambientIntensity, range: 0.2...1,
+                           display: "\(Int((settings.ambientIntensity * 100).rounded()))%")
+                }
+            } header: {
+                Text("Ambient light")
+            } footer: {
+                Text("Chụp màn hình thu nhỏ (~10 khung/giây) để lấy màu bốn cạnh và toả ánh sáng mềm vào viền, cho mọi trang và app. Cần quyền Ghi màn hình (macOS hiện chấm tím trên thanh menu khi đang chụp); hình không được lưu hay gửi đi. Tự dừng khi khoá máy.")
+            }
+
+            Section {
                 Picker("Hiển thị island trên", selection: $settings.displayID) {
-                    Text("Tự động (ưu tiên màn hình có notch)").tag(0)
+                    Text("Tự động (chỉ màn hình có notch)").tag(0)
                     ForEach(screenChoices) { option in
                         Text(option.title).tag(option.id)
                     }
                 }
+            } header: {
+                Text("Màn hình")
+            } footer: {
+                Text("Ở chế độ tự động, máy không có notch (MacBook đời cũ, màn hình ngoài) sẽ ẩn hẳn island và để macOS tự hiện HUD. Chọn một màn hình cụ thể nếu vẫn muốn dùng island dạng notch giả.")
             }
 
             updateSection

@@ -124,6 +124,8 @@ enum TransientActivity: Equatable {
     case timerFinished(String)
     case farewell
     case welcome
+    /// Thông báo mới từ iPhone (Apple chuyển sang Mac, đọc từ Trung tâm thông báo).
+    case notification(NotificationItem)
 
     /// Thời gian hiện trước khi tự ẩn.
     var duration: TimeInterval {
@@ -132,6 +134,7 @@ enum TransientActivity: Equatable {
         case .timerFinished: return 6
         case .farewell: return IslandMetrics.farewellDuration
         case .welcome: return IslandMetrics.welcomeDuration
+        case .notification: return 5
         case .charging, .unplugged: return IslandMetrics.transientDuration
         }
     }

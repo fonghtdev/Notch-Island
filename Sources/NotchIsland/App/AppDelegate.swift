@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var viewModel: IslandViewModel?
     private var windowController: NotchWindowController?
     private var lockScreenController: LockScreenController?
+    private var ambientController: AmbientLightController?
     private var settingsWindow: SettingsWindowController?
     private var updater: UpdateService?
     private let updateItem = NSMenuItem(title: "Kiểm tra cập nhật…", action: nil, keyEquivalent: "")
@@ -31,6 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let updater = UpdateService(settings: settings)
 
         self.lockScreenController = lockScreenController
+        self.ambientController = AmbientLightController(settings: settings, viewModel: viewModel)
         self.settings = settings
         self.viewModel = viewModel
         self.windowController = windowController

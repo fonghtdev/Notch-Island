@@ -8,6 +8,8 @@ import AppKit
 final class IslandViewModel: ObservableObject {
     @Published private(set) var geometry: NotchGeometry
     @Published private(set) var isExpanded = false
+    /// Máy không có notch (chế độ màn hình tự động): island ẩn hẳn, không vẽ notch giả và không chặn phím HUD của macOS.
+    @Published private(set) var isHidden = false
     @Published private(set) var transient: TransientActivity?
     @Published private(set) var nowPlaying: NowPlayingInfo?
     /// Đang giữ thông tin bài cũ trong lúc chờ bài mới (chuyển bài): UI làm mờ nhẹ thay vì biến mất.
@@ -75,6 +77,7 @@ final class IslandViewModel: ObservableObject {
         case .headphones: return settings.showHeadphones ? transient : nil
         case .timerFinished: return settings.showLiveActivities ? transient : nil
         case .farewell, .welcome: return transient
+        case .notification: return settings.iphoneNotifications ? transient : nil
         }
     }
     var visibleActivities: [LiveActivity] { settings.showLiveActivities ? activities : [] }
@@ -218,6 +221,13 @@ final class IslandViewModel: ObservableObject {
         setExpanded(!isExpanded)
     }
 
+    func setHidden(_ hidden: Bool) {
+        guard hidden != isHidden else { return }
+        isHidden = hidden
+        if hidden { setExpanded(false) }
+        applyHUDInterception()
+    }
+
     func updateGeometry(_ newValue: NotchGeometry) {
         guard newValue != geometry else { return }
         geometry = newValue
@@ -311,6 +321,13 @@ final class IslandViewModel: ObservableObject {
         } else {
             NSSound.beep()
         }
+    }
+
+    /// iPhone không có app tương ứng trên Mac: bundle ID của thông báo không phải app nào đã cài trên Mac.
+    /// (App Apple dùng chung ID như Tin nhắn thì không phân biệt được – Apple đã tự hiện chúng trên Mac.)
+    static func isFromIPhone(_ item: NotificationItem) -> Bool {
+        !item.bundleIdentifier.isEmpty
+            && NSWorkspace.shared.urlForApplication(withBundleIdentifier: item.bundleIdentifier) == nil
     }
 
     func dismissNotification(_ id: Int64) { notificationReader.dismiss(id) }
@@ -431,7 +448,16 @@ final class IslandViewModel: ObservableObject {
             self.headphones = info
         }
         lockMonitor.onChange = { [weak self] locked in self?.setLocked(locked) }
-        notificationReader.onChange = { [weak self] list in self?.notifications = list }
+        notificationReader.onChange = { [weak self] list in
+            guard let self else { return }
+            let known = Set(self.notifications.map(\.id))
+            self.notifications = list
+            // Danh sách xếp mới nhất trước: thông báo iPhone mới nhất chưa từng thấy → hiện lên island.
+            if self.settings.iphoneNotifications,
+               let fresh = list.first(where: { !known.contains($0.id) && Self.isFromIPhone($0) }) {
+                self.show(.notification(fresh))
+            }
+        }
 
         batteryService.start()
         nowPlayingService.start()
@@ -468,13 +494,13 @@ final class IslandViewModel: ObservableObject {
 
     private func applyServiceToggles() {
         activityCenter.setEnabled(settings.showLiveActivities)
-        notificationReader.setEnabled(settings.lockScreenNotifications)
+        notificationReader.setEnabled(settings.lockScreenNotifications || settings.iphoneNotifications)
     }
 
     private func applyHUDInterception() {
         hudService.keyboardControlEnabled = true
         hudService.keyboardShortcutEnabled = settings.keyboardShortcut
-        hudService.setIntercepting(settings.showHUD)
+        hudService.setIntercepting(settings.showHUD && !isHidden)
     }
 
     private func handleBattery(old: BatteryInfo?, new: BatteryInfo) {

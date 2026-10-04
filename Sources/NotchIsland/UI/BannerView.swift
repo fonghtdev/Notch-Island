@@ -33,6 +33,8 @@ struct BannerView: View {
             HeadphoneBanner(info: latest(of: info))
         case .timerFinished(let label)?:
             TimerDoneBanner(label: label)
+        case .notification(let item)?:
+            NotificationBanner(item: item)
         case .farewell?:
             FarewellBanner()
         case .welcome?:
@@ -350,6 +352,32 @@ struct WelcomeBanner: View {
             } else {
                 withAnimation(.easeInOut(duration: 0.4)) { showHint = true }
             }
+        }
+    }
+}
+
+// MARK: - Thông báo từ iPhone
+
+struct NotificationBanner: View {
+    let item: NotificationItem
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "iphone")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(.blue)
+                .frame(width: 36, height: 36)
+                .background(Circle().fill(.blue.opacity(0.18)))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.title.isEmpty ? "iPhone" : item.title)
+                    .font(.system(size: 12.5, weight: .semibold))
+                    .lineLimit(1)
+                Text(item.body.isEmpty ? item.subtitle : item.body)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.white.opacity(0.65))
+                    .lineLimit(2)
+            }
+            Spacer(minLength: 0)
         }
     }
 }

@@ -39,7 +39,6 @@ final class NotchWindowController: NSObject {
 
     func show() {
         reposition()
-        panel.orderFrontRegardless()
         startTrackingMouse()
     }
 
@@ -54,12 +53,19 @@ final class NotchWindowController: NSObject {
         let geometry = NotchGeometry.measure(screen)
         viewModel.updateGeometry(geometry)
 
+        // Tự động + màn hình không có notch (MacBook đời cũ, màn hình ngoài): ẩn hẳn, không tạo notch giả.
+        // Chọn một màn hình cụ thể trong Cài đặt thì vẫn hiện như trước.
+        let hidden = viewModel.settings.displayID == 0 && !geometry.hasPhysicalNotch
+        viewModel.setHidden(hidden)
+        guard !hidden else { return panel.orderOut(nil) }
+
         let size = IslandMetrics.panelSize
         let origin = CGPoint(
             x: geometry.screenFrame.midX - size.width / 2,
             y: geometry.screenFrame.maxY - size.height
         )
         panel.setFrame(NSRect(origin: origin, size: size), display: true)
+        if !panel.isVisible { panel.orderFrontRegardless() }
     }
 
     /// Hình chữ nhật của island theo toạ độ màn hình (gốc ở dưới-trái).
@@ -107,6 +113,7 @@ final class NotchWindowController: NSObject {
     }
 
     private func evaluateMouse() {
+        guard !viewModel.isHidden else { return }
         // Đang giữ chuột (vd. kéo thanh tiến trình) khi island đã mở: giữ nguyên trạng thái,
         // kẻo kéo lệch ra ngoài là island tự thu lại và cướp mất thao tác.
         if viewModel.isExpanded, NSEvent.pressedMouseButtons != 0 { return }

@@ -18,6 +18,7 @@ final class AppSettings: ObservableObject {
         static let keyboardShortcut = "keyboardShortcut"
         static let showOnLockScreen = "showOnLockScreen"
         static let lockScreenNotifications = "lockScreenNotifications"
+        static let iphoneNotifications = "iphoneNotifications"
         static let hoverToExpand = "hoverToExpand"
         static let displayID = "displayID"
         static let hudStyle = "hudStyle"
@@ -28,6 +29,8 @@ final class AppSettings: ObservableObject {
         static let brightnessColor = "brightnessColor"
         static let keyboardColor = "keyboardColor"
         static let islandStyle = "islandStyle"
+        static let ambientLight = "ambientLight"
+        static let ambientIntensity = "ambientIntensity"
         static let glassClear = "glassClear"
         static let glassTint = "glassTint"
         static let glassTintStrength = "glassTintStrength"
@@ -42,6 +45,10 @@ final class AppSettings: ObservableObject {
     }
     @Published var showBatteryAlerts: Bool {
         didSet { defaults.set(showBatteryAlerts, forKey: Key.showBatteryAlerts) }
+    }
+    /// Thông báo từ iPhone hiện trên island (cần quyền Toàn bộ ổ đĩa để đọc Trung tâm thông báo).
+    @Published var iphoneNotifications: Bool {
+        didSet { defaults.set(iphoneNotifications, forKey: Key.iphoneNotifications) }
     }
     @Published var showHUD: Bool {
         didSet { defaults.set(showHUD, forKey: Key.showHUD) }
@@ -92,9 +99,9 @@ final class AppSettings: ObservableObject {
     @Published var islandStyle: IslandBackgroundStyle {
         didSet {
             defaults.set(islandStyle.rawValue, forKey: Key.islandStyle)
-            // Vừa chọn Liquid Glass: đặt sẵn giá trị trong suốt như kính của Apple (người dùng vẫn chỉnh lại được).
+            // Vừa chọn Liquid Glass: đặt sẵn giá trị như Control Center: kính "regular" (không phải clear), không phủ màu (người dùng vẫn chỉnh lại được).
             if islandStyle == .glass, oldValue != .glass {
-                glassClear = true
+                glassClear = false
                 glassTintStrength = 0
             }
         }
@@ -111,6 +118,16 @@ final class AppSettings: ObservableObject {
 
     var islandSurface: IslandSurface {
         IslandSurface(style: islandStyle, isClear: glassClear, tint: glassTint, tintStrength: glassTintStrength)
+    }
+
+    // MARK: Ambient light
+
+    /// Ánh sáng viền màn hình theo màu nội dung (cần quyền Ghi màn hình). Mặc định tắt.
+    @Published var ambientLight: Bool {
+        didSet { defaults.set(ambientLight, forKey: Key.ambientLight) }
+    }
+    @Published var ambientIntensity: Double {
+        didSet { defaults.set(ambientIntensity, forKey: Key.ambientIntensity) }
     }
 
     // MARK: Giao diện HUD
@@ -162,6 +179,7 @@ final class AppSettings: ObservableObject {
             Key.keyboardShortcut: true,
             Key.showOnLockScreen: true,
             Key.lockScreenNotifications: false,
+            Key.iphoneNotifications: false,
             Key.hoverToExpand: true,
             Key.displayID: 0,
             Key.hudStyle: HUDStyle.bar.rawValue,
@@ -175,6 +193,8 @@ final class AppSettings: ObservableObject {
             Key.glassClear: false,
             Key.glassTint: "#000000",
             Key.glassTintStrength: 0.08,
+            Key.ambientLight: false,
+            Key.ambientIntensity: 0.7,
         ])
 
         func clamp(_ value: Double, _ range: ClosedRange<Double>) -> Double {
@@ -191,6 +211,7 @@ final class AppSettings: ObservableObject {
         keyboardShortcut = defaults.bool(forKey: Key.keyboardShortcut)
         showOnLockScreen = defaults.bool(forKey: Key.showOnLockScreen)
         lockScreenNotifications = defaults.bool(forKey: Key.lockScreenNotifications)
+        iphoneNotifications = defaults.bool(forKey: Key.iphoneNotifications)
         hoverToExpand = defaults.bool(forKey: Key.hoverToExpand)
         displayID = defaults.integer(forKey: Key.displayID)
 
@@ -198,6 +219,9 @@ final class AppSettings: ObservableObject {
         glassClear = defaults.bool(forKey: Key.glassClear)
         glassTint = Color(hex: defaults.string(forKey: Key.glassTint) ?? "#000000")
         glassTintStrength = clamp(defaults.double(forKey: Key.glassTintStrength), Self.glassTintStrengthRange)
+
+        ambientLight = defaults.bool(forKey: Key.ambientLight)
+        ambientIntensity = clamp(defaults.double(forKey: Key.ambientIntensity), 0.2...1)
 
         hudStyle = HUDStyle(rawValue: defaults.string(forKey: Key.hudStyle) ?? "") ?? .bar
         hudBarHeight = clamp(defaults.double(forKey: Key.hudBarHeight), Self.barHeightRange)
@@ -220,6 +244,6 @@ final class AppSettings: ObservableObject {
         islandStyle = .solid
         glassClear = false
         glassTint = .black
-        glassTintStrength = 0.3
+        glassTintStrength = 0.08
     }
 }

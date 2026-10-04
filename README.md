@@ -27,9 +27,11 @@ Nhạc, cuộc gọi, hẹn giờ, âm lượng, pin, tai nghe, camera – gói 
 | ⏱ **Hoạt động** | Hẹn giờ, bấm giờ (cả của app Đồng hồ), ghi âm có nút tạm dừng / dừng, nhận biết app đang dùng micro / camera. |
 | 📷 **Gương camera** | Xem trước camera ngay trên island, lật gương như Photo Booth. |
 | 🔒 **Màn hình khoá** | Thẻ nhạc, cuộc gọi và (tuỳ chọn) thông báo ngay trên màn hình khoá *(thử nghiệm)*. |
+| 🌈 **Ambient light** | Ánh sáng mềm toả vào từ viền màn hình theo màu nội dung đang xem, cho mọi trang và app *(tuỳ chọn, cần quyền Ghi màn hình)*. |
+| 📱 **Thông báo iPhone** | Thông báo từ iPhone (Apple chuyển sang Mac) hiện lên island *(tuỳ chọn)*. |
 | 🎨 **Nền island** | Đen liền khối với notch, kính mờ, hoặc **Liquid Glass** (macOS 26). |
 
-Ngoài ra: tự nhận diện notch thật (máy không notch sẽ tạo notch giả), click xuyên qua khi chuột không ở trên island, có mặt ở mọi Space và khi app khác full-screen, tự cập nhật, báo lỗi ngay trong app, gỡ cài đặt sạch bằng một nút.
+Ngoài ra: tự nhận diện notch thật (máy không có notch thì island tự ẩn hẳn, không tạo notch giả; chọn màn hình cụ thể trong Cài đặt nếu vẫn muốn dùng), click xuyên qua khi chuột không ở trên island, có mặt ở mọi Space và khi app khác full-screen, tự cập nhật, báo lỗi ngay trong app, gỡ cài đặt sạch bằng một nút.
 
 ## Cài đặt
 
@@ -56,7 +58,8 @@ Các bản cập nhật sau do app tự tải (menu bar → *Kiểm tra cập nh
 | **Trợ năng** | Thay HUD âm lượng / độ sáng; đọc người gọi và bấm nút trong app gọi; điều khiển ghi âm | Khuyến nghị |
 | **Automation** | Chuyển tới đúng tab trình duyệt, điều khiển Music / Spotify | Tuỳ chọn |
 | **Camera** | Gương camera trên island | Tuỳ chọn |
-| **Toàn bộ ổ đĩa** | Đọc thông báo để hiện trên màn hình khoá | Tuỳ chọn, mặc định tắt |
+| **Toàn bộ ổ đĩa** | Đọc thông báo để hiện trên màn hình khoá / island (iPhone) | Tuỳ chọn, mặc định tắt |
+| **Ghi màn hình** | Ambient light lấy màu nội dung màn hình (hình không được lưu hay gửi đi) | Tuỳ chọn, mặc định tắt |
 
 Bản ký ad-hoc có thể bị macOS “quên” quyền Trợ năng sau khi cập nhật; app tự nhắc cấp lại một lần.
 
